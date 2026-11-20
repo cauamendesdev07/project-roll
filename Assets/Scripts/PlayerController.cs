@@ -8,9 +8,10 @@ public class PlayerController : MonoBehaviour
     [Header("Movimentação")]
     [SerializeField] private float moveSpeed = 8f;
     [SerializeField] private float acceleration = 15f;
+    [SerializeField] private Transform cameraTransform;
 
     [Header("Pulo")]
-    [SerializeField] private float jumpForce = 7f;
+    [SerializeField] private float jumpForce = 9f;
     [SerializeField] private float groundCheckDistance = 0.7f;
 
     private Rigidbody rb;
@@ -50,10 +51,18 @@ public class PlayerController : MonoBehaviour
     {
         CheckGround();
 
-        Vector3 movement = new Vector3(
-            movementInput.x,
-            0f,
-            movementInput.y
+        Vector3 forward = cameraTransform.forward;
+        Vector3 right = cameraTransform.right;
+
+        forward.y = 0f;
+        right.y = 0f;
+
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 movement = (
+            right * movementInput.x +
+            forward * movementInput.y
         ).normalized;
 
         Vector3 targetVelocity = movement * moveSpeed;
