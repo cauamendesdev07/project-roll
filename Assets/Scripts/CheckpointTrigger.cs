@@ -1,5 +1,6 @@
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CheckpointTrigger : MonoBehaviour
 {
@@ -33,6 +34,33 @@ public class CheckpointTrigger : MonoBehaviour
 
         activated = true;
 
-        Debug.Log("Checkpoint final ativado!");
+        // Identifica a fase atual.
+        string currentScene = SceneManager.GetActiveScene().name;
+
+        // Extrai o número da fase.
+        string levelNumberText = currentScene.Replace("Level_", "");
+
+        if (!int.TryParse(levelNumberText, out int currentLevel))
+        {
+            Debug.LogError("Não foi possível identificar a fase atual: " + currentScene);
+            return;
+        }
+
+        // Calcula a próxima fase.
+        int nextLevel = currentLevel + 1;
+
+        // Monta o nome da próxima cena.
+        string nextScene = "Level_" + nextLevel.ToString("00");
+
+        // Verifica se a próxima fase existe no Build Profiles.
+        if (Application.CanStreamedLevelBeLoaded(nextScene))
+        {
+            Debug.Log("Fase " + currentLevel + " concluída! Carregando " + nextScene + "...");
+            SceneManager.LoadScene(nextScene);
+        }
+        else
+        {
+            Debug.Log("Parabéns! Você concluiu todas as fases!");
+        }
     }
 }
