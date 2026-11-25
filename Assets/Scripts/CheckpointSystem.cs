@@ -1,9 +1,13 @@
 
+using System;
 using UnityEngine;
 
 public class CheckpointSystem : MonoBehaviour
 {
     private Vector3 currentCheckpoint;
+
+    // Avisado sempre que a bola volta para o checkpoint (ex.: a lava da fase 9 recomeça).
+    public event Action Respawned;
 
     private void Start()
     {
@@ -30,5 +34,6 @@ public class CheckpointSystem : MonoBehaviour
         }
 
         transform.position = currentCheckpoint;
+        Respawned?.Invoke();
     }
 }
