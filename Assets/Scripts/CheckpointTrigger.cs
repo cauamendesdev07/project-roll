@@ -56,14 +56,21 @@ public class CheckpointTrigger : MonoBehaviour
         if (Application.CanStreamedLevelBeLoaded(nextScene))
         {
             Debug.Log("Fase " + currentLevel + " concluída! Carregando " + nextScene + "...");
-            SceneManager.LoadScene(nextScene);
+
+            // O GameManager mostra "Fase concluída!" e depois carrega a próxima fase.
+            if (GameManager.Instance != null)
+                GameManager.Instance.CompleteLevel(nextScene);
+            else
+                SceneManager.LoadScene(nextScene);
         }
         else
         {
             Debug.Log("Parabéns! Você concluiu todas as fases!");
 
-            // Depois da última fase, volta para o menu principal.
-            if (Application.CanStreamedLevelBeLoaded("MainMenu"))
+            // Depois da última fase, o GameManager mostra a tela final.
+            if (GameManager.Instance != null)
+                GameManager.Instance.CompleteLevel(null);
+            else if (Application.CanStreamedLevelBeLoaded("MainMenu"))
                 Invoke(nameof(LoadMainMenu), 2.5f);
         }
     }

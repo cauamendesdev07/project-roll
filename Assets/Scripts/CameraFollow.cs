@@ -30,6 +30,10 @@ public class CameraFollow : MonoBehaviour
         if (target == null || Mouse.current == null)
             return;
 
+        // Pausado ou na tela final: a câmera não gira com o mouse.
+        if (GameManager.InputBlocked)
+            return;
+
         Vector2 mouseDelta = Mouse.current.delta.ReadValue();
 
         horizontalRotation += mouseDelta.x * mouseSensitivity;

@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
     {
         movementInput = Vector2.zero;
 
-        if (Keyboard.current == null)
+        if (Keyboard.current == null || GameManager.InputBlocked)
             return;
 
         if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)
