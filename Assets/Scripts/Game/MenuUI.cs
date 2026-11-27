@@ -16,7 +16,6 @@ public class MenuUI : MonoBehaviour
     private TextMeshProUGUI resetLabel;
     private bool resetArmed;
 
-    public Button OptionsButton { get; private set; }
     public event System.Action OptionsRequested;
 
     public void Build(Transform root)
@@ -45,8 +44,7 @@ public class MenuUI : MonoBehaviour
         continueLabel = continueButton.GetComponentInChildren<TextMeshProUGUI>();
         UiKit.Btn("NewGame", col, "Novo jogo", () => GameManager.Instance.LoadLevel(1), 420f, 70f);
         UiKit.Btn("Levels", col, "Fases", ShowLevels, 420f, 70f);
-        OptionsButton = UiKit.Btn("Options", col, "Opções", () => OptionsRequested?.Invoke(), 420f, 70f);
-        OptionsButton.gameObject.SetActive(false); // habilitado pela tela de opções
+        UiKit.Btn("Options", col, "Opções", () => OptionsRequested?.Invoke(), 420f, 70f);
         var quit = UiKit.Btn("Quit", col, "Sair", Application.Quit, 420f, 70f);
         quit.gameObject.SetActive(!Application.isEditor && Application.platform != RuntimePlatform.WebGLPlayer);
     }

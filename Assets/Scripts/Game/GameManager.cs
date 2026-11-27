@@ -58,6 +58,7 @@ public class GameManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        GameSettings.Load();
         ui = gameObject.AddComponent<GameUI>();
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
@@ -121,6 +122,7 @@ public class GameManager : MonoBehaviour
             Cursor.visible = true;
         }
 
+        GameSettings.ApplyCameras();
         ui.OnSceneChanged(CurrentLevel);
         LevelStarted?.Invoke(CurrentLevel);
     }
@@ -133,6 +135,14 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        // Esc com as opções abertas só fecha as opções (volta à pausa ou ao menu).
+        if (ui.Options.IsOpen)
+        {
+            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+                ui.Options.Close();
+            return;
+        }
+
         if (CurrentLevel <= 0)
             return;
 

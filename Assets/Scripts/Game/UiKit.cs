@@ -91,4 +91,42 @@ public static class UiKit
         v.childForceExpandWidth = false; v.childForceExpandHeight = false;
         return v;
     }
+
+    // Barra deslizante no estilo da interface.
+    public static Slider Bar(string name, Transform parent, float min, float max, float value, UnityAction<float> onChange, float width = 380f)
+    {
+        var root = Rect(name, parent);
+        root.sizeDelta = new Vector2(width, 30f);
+        var bg = Img("Background", root, ButtonColor);
+        Anchor(bg.rectTransform, new Vector2(0, 0.5f), new Vector2(1, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(0, 12));
+
+        var fillArea = Rect("Fill Area", root);
+        Anchor(fillArea, new Vector2(0, 0.5f), new Vector2(1, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(0, 12));
+        var fill = Img("Fill", fillArea, Accent);
+        fill.rectTransform.anchorMin = new Vector2(0, 0);
+        fill.rectTransform.anchorMax = new Vector2(0, 1);
+        fill.rectTransform.sizeDelta = Vector2.zero;
+
+        var handleArea = Rect("Handle Slide Area", root);
+        Stretch(handleArea);
+        handleArea.sizeDelta = new Vector2(-24, 0);
+        var handle = Img("Handle", handleArea, Text);
+        handle.rectTransform.anchorMin = new Vector2(0, 0);
+        handle.rectTransform.anchorMax = new Vector2(0, 1);
+        handle.rectTransform.sizeDelta = new Vector2(24, 0);
+
+        var s = root.gameObject.AddComponent<Slider>();
+        s.fillRect = fill.rectTransform;
+        s.handleRect = handle.rectTransform;
+        s.targetGraphic = handle;
+        var colors = s.colors;
+        colors.highlightedColor = new Color(1f, 0.85f, 0.55f);
+        colors.pressedColor = Accent;
+        s.colors = colors;
+        s.minValue = min;
+        s.maxValue = max;
+        s.SetValueWithoutNotify(value);
+        s.onValueChanged.AddListener(onChange);
+        return s;
+    }
 }

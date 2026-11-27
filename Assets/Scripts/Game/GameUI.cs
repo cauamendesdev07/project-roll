@@ -17,6 +17,7 @@ public class GameUI : MonoBehaviour
 
     public Transform Root => canvas.transform;
     public MenuUI Menu { get; private set; }
+    public OptionsUI Options { get; private set; }
 
     private void Awake()
     {
@@ -27,6 +28,9 @@ public class GameUI : MonoBehaviour
         BuildGameComplete();
         Menu = gameObject.AddComponent<MenuUI>();
         Menu.Build(canvas.transform);
+        Options = gameObject.AddComponent<OptionsUI>();
+        Options.Build(canvas.transform);
+        Menu.OptionsRequested += () => { Menu.Hide(); Options.Open(Menu.ShowMenu); };
     }
 
     private void BuildCanvas()
@@ -81,14 +85,16 @@ public class GameUI : MonoBehaviour
         UiKit.Column(col, 18f);
         UiKit.Btn("Resume", col, "Continuar", () => GameManager.Instance.Resume());
         UiKit.Btn("Restart", col, "Reiniciar fase", () => GameManager.Instance.RestartLevel());
-        PauseOptionsButton = UiKit.Btn("Options", col, "Opções", () => OptionsRequested?.Invoke());
-        PauseOptionsButton.gameObject.SetActive(false); // habilitado pela tela de opções
+        UiKit.Btn("Options", col, "Opções", OpenOptionsFromPause);
         UiKit.Btn("Menu", col, "Menu principal", () => GameManager.Instance.GoToMainMenu());
         pause.SetActive(false);
     }
 
-    public Button PauseOptionsButton { get; private set; }
-    public event System.Action OptionsRequested;
+    private void OpenOptionsFromPause()
+    {
+        pause.SetActive(false);
+        Options.Open(() => pause.SetActive(GameManager.Instance != null && GameManager.Instance.IsPaused));
+    }
 
     private void BuildLevelComplete()
     {
@@ -124,6 +130,7 @@ public class GameUI : MonoBehaviour
 
     public void OnSceneChanged(int level)
     {
+        Options.Close();
         // usa o EventSystem da cena, se ela tiver um (ex.: menu principal)
         var others = FindObjectsByType<EventSystem>(FindObjectsInactive.Exclude);
         bool sceneHasOwn = false;

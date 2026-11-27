@@ -12,7 +12,6 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float height = 2f;
 
     [Header("Controle do mouse")]
-    [SerializeField] private float mouseSensitivity = 0.15f;
     [SerializeField] private float minVerticalAngle = -20f;
     [SerializeField] private float maxVerticalAngle = 70f;
 
@@ -34,10 +33,13 @@ public class CameraFollow : MonoBehaviour
         if (GameManager.InputBlocked)
             return;
 
+        // Sensibilidade e eixo invertido vêm das opções (GameSettings).
         Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+        float sensitivity = GameSettings.MouseSensitivity;
+        float invert = GameSettings.InvertY ? -1f : 1f;
 
-        horizontalRotation += mouseDelta.x * mouseSensitivity;
-        verticalRotation -= mouseDelta.y * mouseSensitivity;
+        horizontalRotation += mouseDelta.x * sensitivity;
+        verticalRotation -= mouseDelta.y * sensitivity * invert;
 
         verticalRotation = Mathf.Clamp(
             verticalRotation,
