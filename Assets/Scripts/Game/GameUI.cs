@@ -16,6 +16,7 @@ public class GameUI : MonoBehaviour
     private float completeShownAt;
 
     public Transform Root => canvas.transform;
+    public MenuUI Menu { get; private set; }
 
     private void Awake()
     {
@@ -24,6 +25,8 @@ public class GameUI : MonoBehaviour
         BuildPause();
         BuildLevelComplete();
         BuildGameComplete();
+        Menu = gameObject.AddComponent<MenuUI>();
+        Menu.Build(canvas.transform);
     }
 
     private void BuildCanvas()
@@ -131,6 +134,18 @@ public class GameUI : MonoBehaviour
         pause.SetActive(false);
         levelComplete.SetActive(false);
         gameComplete.SetActive(false);
+
+        // Menu principal: o menu montado por código substitui o Canvas antigo da cena.
+        if (level == 0 && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == GameManager.MainMenuScene)
+        {
+            foreach (var c in FindObjectsByType<Canvas>(FindObjectsInactive.Exclude))
+                if (c != canvas && c.isRootCanvas) c.gameObject.SetActive(false);
+            Menu.ShowMenu();
+        }
+        else
+        {
+            Menu.Hide();
+        }
 
         if (level > 0)
         {

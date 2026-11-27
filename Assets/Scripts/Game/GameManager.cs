@@ -201,6 +201,7 @@ public class GameManager : MonoBehaviour
         IsTransitioning = true;
         RunTime += LevelTime;
         RunDeaths += LevelDeaths;
+        SaveData.RecordCompletion(CurrentLevel, LevelTime, LevelDeaths);
         LevelCompleted?.Invoke(CurrentLevel, LevelTime, LevelDeaths);
 
         if (string.IsNullOrEmpty(nextScene))

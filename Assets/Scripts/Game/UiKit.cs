@@ -68,6 +68,7 @@ public static class UiKit
         var layout = rt.gameObject.AddComponent<LayoutElement>();
         layout.preferredWidth = width; layout.preferredHeight = height;
         var btn = rt.gameObject.AddComponent<UnityEngine.UI.Button>();
+        btn.targetGraphic = img;
         var colors = btn.colors;
         colors.normalColor = Color.white;
         colors.highlightedColor = new Color(1.25f, 1.1f, 0.8f, 1f);
