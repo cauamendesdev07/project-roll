@@ -1,7 +1,9 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 // Treme quando a bola pisa, cai e some; depois de um tempo volta ao lugar.
+// O efeito vale para o bloco e para as peças visuais filhas (cenário).
 public class CrumblingPlatform : MonoBehaviour
 {
     [Tooltip("Tempo tremendo antes de cair.")]
@@ -11,17 +13,24 @@ public class CrumblingPlatform : MonoBehaviour
     [SerializeField] private Color warningColor = new Color(0.9f, 0.2f, 0.15f);
 
     private Collider platformCollider;
-    private Renderer platformRenderer;
+    private readonly List<Renderer> renderers = new List<Renderer>();
+    private readonly List<Color> startColors = new List<Color>();
     private Vector3 startPosition;
-    private Color startColor;
     private bool busy;
 
     private void Awake()
     {
         platformCollider = GetComponent<Collider>();
-        platformRenderer = GetComponent<Renderer>();
         startPosition = transform.position;
-        startColor = platformRenderer.material.color;
+
+        foreach (Renderer r in GetComponentsInChildren<Renderer>(true))
+        {
+            if (!r.enabled || r is ParticleSystemRenderer)
+                continue;
+
+            renderers.Add(r);
+            startColors.Add(r.material.HasProperty("_BaseColor") ? r.material.GetColor("_BaseColor") : Color.white);
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -30,6 +39,21 @@ public class CrumblingPlatform : MonoBehaviour
             return;
 
         StartCoroutine(Crumble());
+    }
+
+    private void SetTint(float k)
+    {
+        for (int i = 0; i < renderers.Count; i++)
+        {
+            if (renderers[i].material.HasProperty("_BaseColor"))
+                renderers[i].material.SetColor("_BaseColor", Color.Lerp(startColors[i], warningColor, k));
+        }
+    }
+
+    private void SetVisible(bool visible)
+    {
+        foreach (Renderer r in renderers)
+            r.enabled = visible;
     }
 
     private IEnumerator Crumble()
@@ -41,7 +65,7 @@ public class CrumblingPlatform : MonoBehaviour
         {
             t += Time.deltaTime;
             float k = t / delay;
-            platformRenderer.material.color = Color.Lerp(startColor, warningColor, k);
+            SetTint(k);
             transform.position = startPosition + Random.insideUnitSphere * 0.06f * k;
             yield return null;
         }
@@ -56,12 +80,12 @@ public class CrumblingPlatform : MonoBehaviour
             yield return null;
         }
 
-        platformRenderer.enabled = false;
+        SetVisible(false);
         yield return new WaitForSeconds(Mathf.Max(0f, respawnTime - 0.6f));
 
         transform.position = startPosition;
-        platformRenderer.material.color = startColor;
-        platformRenderer.enabled = true;
+        SetTint(0f);
+        SetVisible(true);
         platformCollider.enabled = true;
         busy = false;
     }
