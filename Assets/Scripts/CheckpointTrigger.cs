@@ -61,6 +61,15 @@ public class CheckpointTrigger : MonoBehaviour
         else
         {
             Debug.Log("Parabéns! Você concluiu todas as fases!");
+
+            // Depois da última fase, volta para o menu principal.
+            if (Application.CanStreamedLevelBeLoaded("MainMenu"))
+                Invoke(nameof(LoadMainMenu), 2.5f);
         }
+    }
+
+    private void LoadMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 }

@@ -19,6 +19,12 @@ public class PlayerController : MonoBehaviour
     private bool jumpRequested;
     private bool isGrounded;
 
+    // Superfície sob a bola (plataforma móvel, esteira, gelo...) e velocidades externas (vento).
+    private IPlayerSurface groundSurface;
+    private Vector3 groundPoint;
+    private Vector3 inheritedVelocity;
+    private Vector3 pendingExternalVelocity;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -47,6 +53,12 @@ public class PlayerController : MonoBehaviour
             jumpRequested = true;
     }
 
+    // Chamado por áreas como o vento: soma uma velocidade ao alvo neste passo de física.
+    public void AddExternalVelocity(Vector3 velocity)
+    {
+        pendingExternalVelocity += velocity;
+    }
+
     private void FixedUpdate()
     {
         CheckGround();
@@ -65,7 +77,28 @@ public class PlayerController : MonoBehaviour
             forward * movementInput.y
         ).normalized;
 
-        Vector3 targetVelocity = movement * moveSpeed;
+        // No chão, a bola acompanha a superfície (plataforma móvel, esteira).
+        // No ar, mantém a velocidade herdada da última superfície até pousar.
+        float accelerationMultiplier = 1f;
+
+        if (isGrounded)
+        {
+            if (groundSurface != null)
+            {
+                inheritedVelocity = groundSurface.GetSurfaceVelocity(groundPoint);
+                accelerationMultiplier = groundSurface.AccelerationMultiplier;
+            }
+            else
+            {
+                inheritedVelocity = Vector3.zero;
+            }
+        }
+
+        Vector3 externalVelocity = inheritedVelocity + pendingExternalVelocity;
+        externalVelocity.y = 0f;
+        pendingExternalVelocity = Vector3.zero;
+
+        Vector3 targetVelocity = movement * moveSpeed + externalVelocity;
 
         Vector3 currentVelocity = new Vector3(
             rb.linearVelocity.x,
@@ -76,7 +109,7 @@ public class PlayerController : MonoBehaviour
         Vector3 newVelocity = Vector3.MoveTowards(
             currentVelocity,
             targetVelocity,
-            acceleration * Time.fixedDeltaTime
+            acceleration * accelerationMultiplier * Time.fixedDeltaTime
         );
 
         rb.linearVelocity = new Vector3(
@@ -95,10 +128,17 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGround()
     {
+        // Ignora triggers: áreas de vento, checkpoints e a chegada não contam como chão.
         isGrounded = Physics.Raycast(
             transform.position,
             Vector3.down,
-            groundCheckDistance
+            out RaycastHit hit,
+            groundCheckDistance,
+            Physics.DefaultRaycastLayers,
+            QueryTriggerInteraction.Ignore
         );
+
+        groundSurface = isGrounded ? hit.collider.GetComponentInParent<IPlayerSurface>() : null;
+        groundPoint = isGrounded ? hit.point : Vector3.zero;
     }
 }
