@@ -305,7 +305,7 @@ public static partial class ThemedLevelBuilder
         fakeMat = MakeMat(M("Atlas_Fake"), lit, m => { MakeTransparent(m, 0, false); m.SetTexture("_BaseMap", palette); m.SetColor("_BaseColor", new Color(1, 1, 1, 0.82f)); m.SetFloat("_Smoothness", 0.12f); });
         thinMat = MakeMat(M("Thin"), lit, m => { m.SetColor("_BaseColor", ShadeColor(Hex(AtlasHex[(int)R.Bark]), 4)); m.SetFloat("_Smoothness", 0.2f); });
         glowMat = MakeMat(M("Glow"), lit, m => { m.SetColor("_BaseColor", T.glow); m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", T.glow * 1.5f); m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive; m.SetFloat("_Smoothness", 0.7f); m.enableInstancing = true; });
-        lanternMat = MakeMat(M("Lantern"), lit, m => { m.SetColor("_BaseColor", T.accent); m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", T.accent * 9f); m.SetFloat("_Smoothness", 0.5f); });
+        lanternMat = MakeMat(M("Lantern"), lit, m => { m.SetColor("_BaseColor", T.accent); m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", T.accent * 9f); m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive; m.SetFloat("_Smoothness", 0.5f); });
         pollenMat = MakeMat(M("Particle"), pUnlit, m => { MakeTransparent(m, 2, true); m.SetTexture("_BaseMap", dot); m.SetColor("_BaseColor", Color.white); });
         fireflyMat = MakeMat(M("ParticleGlow"), pUnlit, m => { MakeTransparent(m, 2, true); m.SetTexture("_BaseMap", dot); m.SetColor("_BaseColor", new Color(2.6f, 2.6f, 2.6f, 1f)); });
         foamMat = MakeMat(M("ParticleSoft"), pUnlit, m => { MakeTransparent(m, 0, true); m.SetTexture("_BaseMap", dot); m.SetColor("_BaseColor", Color.white); });
@@ -782,6 +782,7 @@ public static partial class ThemedLevelBuilder
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         log.Append($"trees {treeCount}, decor {decorCount}, instances {inst} in {groups.Count} groups, meshes {meshAssets.Count} ({meshAssets.Sum(m => (long)m.vertexCount)}v)");
+        log.Append(" | " + AddFauna(level));   // fauna por último, com RNG próprio
         return log.ToString();
     }
 
