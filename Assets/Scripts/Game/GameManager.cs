@@ -28,6 +28,17 @@ public class GameManager : MonoBehaviour
     public bool IsTransitioning { get; private set; }
     public bool IsGameOverScreen { get; private set; }
 
+    // Menu com o jogo rodando ao fundo: o robozinho joga as fases em sequência.
+    public bool IsDemo { get; private set; }
+    public int DemoLevel { get; private set; }
+    // Fase cujo visual/áudio está na tela (a jogada ou a da demonstração).
+    public int VisualLevel => CurrentLevel > 0 ? CurrentLevel : DemoLevel;
+    private const float DemoDuration = 14f;
+    private bool demoWanted;
+    private int demoNext;
+    private Coroutine demoRoutine;
+    private AsyncOperation demoLoad;
+
     // Movimento e câmera ficam travados durante a pausa e a tela final.
     public static bool InputBlocked => Instance != null && (Instance.IsPaused || Instance.IsGameOverScreen);
 
@@ -99,7 +110,10 @@ public class GameManager : MonoBehaviour
         IsPaused = false;
         IsTransitioning = false;
         IsGameOverScreen = false;
-        CurrentLevel = LevelFromScene(scene.name);
+        int sceneLevel = LevelFromScene(scene.name);
+        IsDemo = demoWanted && sceneLevel > 0;
+        DemoLevel = IsDemo ? sceneLevel : 0;
+        CurrentLevel = IsDemo ? 0 : sceneLevel;
         LevelTime = 0f;
         LevelDeaths = 0;
 
@@ -113,13 +127,14 @@ public class GameManager : MonoBehaviour
         if (player != null)
             player.Respawned -= OnPlayerRespawned;
 
-        player = CurrentLevel > 0 ? FindAnyObjectByType<CheckpointSystem>() : null;
+        player = sceneLevel > 0 ? FindAnyObjectByType<CheckpointSystem>() : null;
 
         if (player != null)
         {
             player.Respawned += OnPlayerRespawned;
             if (player.GetComponent<BallVisuals>() == null)
                 player.gameObject.AddComponent<BallVisuals>();
+            if (IsDemo) SetupDemo(player);
         }
 
         if (CurrentLevel == 0)
@@ -129,13 +144,73 @@ public class GameManager : MonoBehaviour
         }
 
         GameSettings.ApplyCameras();
-        audioManager.SetLevel(CurrentLevel);
-        ui.OnSceneChanged(CurrentLevel);
+        audioManager.SetLevel(VisualLevel);
+        ui.OnSceneChanged(CurrentLevel, IsDemo);
         LevelStarted?.Invoke(CurrentLevel);
+
+        // menu principal: começa a demonstração ao fundo
+        if (scene.name == MainMenuScene && demoRoutine == null)
+            demoRoutine = StartCoroutine(DemoLoop());
+    }
+
+    // ---------- Demonstração no menu ----------
+
+    private void SetupDemo(CheckpointSystem ball)
+    {
+        var cam = Camera.main;
+        if (cam != null)
+        {
+            var follow = cam.GetComponent<CameraFollow>();
+            if (follow != null) follow.enabled = false;   // antes do Start: não trava o cursor
+            var demoCam = cam.GetComponent<DemoCamera>();
+            if (demoCam == null) demoCam = cam.gameObject.AddComponent<DemoCamera>();
+            var fwd = cam.transform.forward; fwd.y = 0f;
+            demoCam.Init(ball.transform, fwd.sqrMagnitude > 0.01f ? Quaternion.LookRotation(fwd).eulerAngles.y : 0f);
+        }
+        if (ball.GetComponent<DemoPilot>() == null)
+            ball.gameObject.AddComponent<DemoPilot>();
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    private IEnumerator DemoLoop()
+    {
+        demoWanted = true;
+        demoNext = UnityEngine.Random.Range(1, LevelNames.Length + 1);
+        while (demoWanted)
+        {
+            yield return ui.FadeDemo(1f, 0.45f);
+            if (!demoWanted) break;
+            demoLoad = SceneManager.LoadSceneAsync($"Level_{demoNext:00}");
+            while (demoLoad != null && !demoLoad.isDone) yield return null;
+            demoLoad = null;
+            demoNext = demoNext % LevelNames.Length + 1;
+            if (!demoWanted) break;
+            yield return ui.FadeDemo(0f, 0.6f);
+            float until = Time.realtimeSinceStartup + DemoDuration;
+            while (demoWanted && Time.realtimeSinceStartup < until) yield return null;
+        }
+        demoRoutine = null;
+    }
+
+    private void StopDemo()
+    {
+        demoWanted = false;
+        if (demoRoutine != null) { StopCoroutine(demoRoutine); demoRoutine = null; }
+        ui.FadeDemoInstant(0f);
+    }
+
+    // Se uma fase da demonstração ainda está carregando, espera terminar antes de trocar de cena.
+    private IEnumerator LoadWhenFree(string sceneName)
+    {
+        while (demoLoad != null && !demoLoad.isDone) yield return null;
+        demoLoad = null;
+        SceneManager.LoadScene(sceneName);
     }
 
     private void OnPlayerRespawned()
     {
+        if (IsDemo) return;   // o robozinho cai à vontade: sem contar, sem som, sem flash
         LevelDeaths++;
         AudioManager.Play("respawn", 0.7f);
         ui.FlashRespawn();
@@ -195,7 +270,10 @@ public class GameManager : MonoBehaviour
     public void LoadLevel(int level)
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene($"Level_{level:00}");
+        bool loading = demoLoad != null && !demoLoad.isDone;
+        StopDemo();
+        if (loading) StartCoroutine(LoadWhenFree($"Level_{level:00}"));
+        else SceneManager.LoadScene($"Level_{level:00}");
     }
 
     public void GoToMainMenu()
@@ -209,7 +287,7 @@ public class GameManager : MonoBehaviour
     // Chamado pela chegada. nextScene vazio = era a última fase.
     public void CompleteLevel(string nextScene)
     {
-        if (IsTransitioning)
+        if (IsTransitioning || IsDemo)
             return;
 
         StartCoroutine(CompleteRoutine(nextScene));

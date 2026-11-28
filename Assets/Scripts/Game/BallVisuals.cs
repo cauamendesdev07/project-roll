@@ -42,7 +42,7 @@ public class BallVisuals : MonoBehaviour
         if (mesh != null && mf != null) mf.sharedMesh = mesh;
         if (mat != null && mr != null) mr.sharedMaterial = mat;
 
-        int level = GameManager.Instance != null ? GameManager.Instance.CurrentLevel : 0;
+        int level = GameManager.Instance != null ? GameManager.Instance.VisualLevel : 0;
         if (level >= 1 && level <= DustColors.Length) dustColor = DustColors[level - 1];
         // Um pouco mais clara que o chão, senão some contra ele.
         dustColor = Color.Lerp(dustColor, Color.white, 0.4f);

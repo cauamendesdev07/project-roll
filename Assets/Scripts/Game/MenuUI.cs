@@ -102,6 +102,8 @@ public class MenuUI : MonoBehaviour
         resetLabel = reset.GetComponentInChildren<TextMeshProUGUI>();
     }
 
+    public bool IsVisible => menu.activeSelf || levels.activeSelf;
+
     public void ShowMenu()
     {
         resetArmed = false;

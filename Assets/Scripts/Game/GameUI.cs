@@ -14,6 +14,7 @@ public class GameUI : MonoBehaviour
     private TextMeshProUGUI completeTitle, completeStats, endStats;
     private CanvasGroup completeGroup;
     private Image respawnFlash;
+    private Image demoFade;
     private float respawnFlashAt = -10f;
     private float completeShownAt;
 
@@ -25,6 +26,7 @@ public class GameUI : MonoBehaviour
     {
         BuildCanvas();
         BuildRespawnFlash();
+        BuildDemoFade();
         BuildHud();
         BuildPause();
         BuildLevelComplete();
@@ -62,6 +64,31 @@ public class GameUI : MonoBehaviour
         UiKit.Stretch(respawnFlash.rectTransform);
         respawnFlash.raycastTarget = false;
         respawnFlash.gameObject.SetActive(false);
+    }
+
+    // Escurece a cena (abaixo do menu) na troca das fases da demonstração.
+    private void BuildDemoFade()
+    {
+        demoFade = UiKit.Img("DemoFade", canvas.transform, new Color(0.02f, 0.03f, 0.04f, 0f));
+        UiKit.Stretch(demoFade.rectTransform);
+        demoFade.raycastTarget = false;
+    }
+
+    public System.Collections.IEnumerator FadeDemo(float target, float duration)
+    {
+        float from = demoFade.color.a, t = 0f;
+        while (t < duration)
+        {
+            t += Time.unscaledDeltaTime;
+            FadeDemoInstant(Mathf.Lerp(from, target, Mathf.SmoothStep(0f, 1f, t / duration)));
+            yield return null;
+        }
+        FadeDemoInstant(target);
+    }
+
+    public void FadeDemoInstant(float alpha)
+    {
+        var c = demoFade.color; c.a = alpha; demoFade.color = c;
     }
 
     public void FlashRespawn()
@@ -147,9 +174,11 @@ public class GameUI : MonoBehaviour
         gameComplete.SetActive(false);
     }
 
-    public void OnSceneChanged(int level)
+    public void OnSceneChanged(int level, bool demo = false)
     {
-        Options.Close();
+        // na troca de fase da demonstração, não mexe no que o jogador está vendo no menu
+        bool keepMenu = demo && (Menu.IsVisible || Options.IsOpen);
+        if (!keepMenu) Options.Close();
         // usa o EventSystem da cena, se ela tiver um (ex.: menu principal)
         var others = FindObjectsByType<EventSystem>(FindObjectsInactive.Exclude);
         bool sceneHasOwn = false;
@@ -162,12 +191,13 @@ public class GameUI : MonoBehaviour
         gameComplete.SetActive(false);
         respawnFlash.gameObject.SetActive(false);
 
-        // Menu principal: o menu montado por código substitui o Canvas antigo da cena.
-        if (level == 0 && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == GameManager.MainMenuScene)
+        // Menu principal (ou a demonstração ao fundo): o menu montado por código substitui o Canvas antigo da cena.
+        if (level == 0)
         {
-            foreach (var c in FindObjectsByType<Canvas>(FindObjectsInactive.Exclude))
-                if (c != canvas && c.isRootCanvas) c.gameObject.SetActive(false);
-            Menu.ShowMenu();
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == GameManager.MainMenuScene)
+                foreach (var c in FindObjectsByType<Canvas>(FindObjectsInactive.Exclude))
+                    if (c != canvas && c.isRootCanvas) c.gameObject.SetActive(false);
+            if (!keepMenu) Menu.ShowMenu();
         }
         else
         {

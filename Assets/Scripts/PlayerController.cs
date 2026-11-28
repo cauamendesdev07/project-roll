@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float groundProbeScale = 0.9f;
 
     private static int groundMask;
-    private static int GroundMask
+    public static int GroundMask
     {
         get
         {
@@ -37,6 +37,11 @@ public class PlayerController : MonoBehaviour
 
     // Pouso (velocidade de queda, ponto no chão): usado por efeitos visuais.
     public event System.Action<float, Vector3> Landed;
+
+    // Robozinho do menu: quando definido, ele controla a bola no lugar do teclado.
+    public DemoPilot Pilot { get; set; }
+    public bool IsGrounded => isGrounded;
+    public Collider GroundCollider { get; private set; }
 
     private Rigidbody rb;
     private Vector2 movementInput;
@@ -74,6 +79,12 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         movementInput = Vector2.zero;
+
+        if (Pilot != null)
+        {
+            if (Pilot.ConsumeJump()) lastJumpPressTime = Time.time;
+            return;
+        }
 
         if (Keyboard.current == null || GameManager.InputBlocked)
             return;
@@ -118,6 +129,12 @@ public class PlayerController : MonoBehaviour
             right * movementInput.x +
             forward * movementInput.y
         ).normalized;
+
+        if (Pilot != null)
+        {
+            movement = Pilot.Move;
+            movement.y = 0f;
+        }
 
         // No chão, a bola acompanha a superfície (plataforma móvel, esteira).
         // No ar, mantém a velocidade herdada da última superfície até pousar.
@@ -211,6 +228,7 @@ public class PlayerController : MonoBehaviour
         if (isGrounded && Time.time >= jumpLockUntil)
             lastGroundedTime = Time.time;
 
+        GroundCollider = isGrounded ? hit.collider : null;
         groundSurface = isGrounded ? hit.collider.GetComponentInParent<IPlayerSurface>() : null;
         groundPoint = isGrounded ? hit.point : Vector3.zero;
 
