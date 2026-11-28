@@ -73,12 +73,13 @@ public static partial class ThemedLevelBuilder
 
     // ------------------------------------------------------------------ props
     static readonly Dictionary<string, Mesh[]> props = new Dictionary<string, Mesh[]>();
+    static Material windowMat;
     static Material atlasMat, foliageMat, glowMat, fakeMat, thinMat, lanternMat, fireflyMat, pollenMat, foamMat, leafMat;
 
     static Mesh[] Prop(string kind)
     {
         if (props.TryGetValue(kind, out var m)) return m;
-        int baseSeed = Math.Abs(kind.GetHashCode()) % 10000;
+        int baseSeed = Math.Abs((kind == "buildingwin" ? "building" : kind).GetHashCode()) % 10000;   // janelas = mesmo prédio
         Func<int, MB> f;
         int n = 3;
         switch (kind)
@@ -114,9 +115,11 @@ public static partial class ThemedLevelBuilder
             case "bromeliad": f = s => Bromeliad(s); n = 3; break;
             case "araucaria": f = s => Araucaria(16f, s); n = 4; break;
             case "fence": f = s => Fence(s); n = 3; break;
-            case "building": f = s => Building(30f, s); n = 4; break;
+            case "building": f = s => BuildingPair(30f, s).shell; n = 4; break;
+            case "buildingwin": f = s => BuildingPair(30f, s).windows; n = 4; break;
             case "lamp": f = s => Lamp(s); n = 1; break;
             case "rooftop": f = s => Rooftop(s); n = 3; break;
+            case "house": f = s => House(s); n = 6; break;
             default: throw new Exception("prop desconhecido " + kind);
         }
         m = new Mesh[n];
@@ -172,6 +175,17 @@ public static partial class ThemedLevelBuilder
         AddInst(PickMesh(kind), PropMat(kind), shadows, pos, rot, s);
     }
 
+    // Prédio: casco + janelas (mesma variação, mesma posição); janelas com material próprio (acendem/apagam).
+    static void PlaceBuilding(Vector3 pos, bool shadows)
+    {
+        var (a, b) = PropScale("building");
+        float s = Rf(a, b);
+        var rot = Quaternion.Euler(0, Rf(0, 360), 0);
+        var shells = Prop("building"); int idx = Ri(0, shells.Length - 1);
+        AddInst(shells[idx], atlasMat, shadows, pos, rot, s);
+        if (windowMat != null) AddInst(Prop("buildingwin")[idx], windowMat, false, pos, rot, s);
+    }
+
     static string PickTree()
     {
         float total = T.treeWeights.Sum(), r = Rf(0, total);
@@ -196,7 +210,7 @@ public static partial class ThemedLevelBuilder
         AtlasHex = T.atlas;
         tuftBase = T.tuftBase; tuftTip = T.tuftTip; bushAlt = T.bushAlt; canopyAlt = T.canopyAlt;
         rng = new Random(1234 + (level - 1) * 7919);
-        meshAssets.Clear(); groups.Clear(); props.Clear();
+        meshAssets.Clear(); groups.Clear(); props.Clear(); buildingCache.Clear();
         pillarBottom = T.terrain == TerrainMode.Ocean ? -17.5f : -13.9f;
         var log = new System.Text.StringBuilder($"Level_{level:00} ({T.title}): ");
 
@@ -331,6 +345,13 @@ public static partial class ThemedLevelBuilder
         leafMat = MakeMat(M("ParticleLeaf"), pUnlit, m => { MakeTransparent(m, 0, true); m.SetTexture("_BaseMap", leafTex); m.SetColor("_BaseColor", Color.white); });
         var mist = MakeMat(M("Mist"), pUnlit, m => { MakeTransparent(m, 0, true); m.SetTexture("_BaseMap", mistTex); var c = T.mistCol; c.a = T.mistAlpha; m.SetColor("_BaseColor", c); });
         var shaftMat = MakeMat(M("LightShaft"), pUnlit, m => { MakeTransparent(m, 2, true); m.SetTexture("_BaseMap", shaftTex); var c = T.sunCol; c.a = 0.09f; m.SetColor("_BaseColor", c); });
+        windowMat = T.cityLights ? MakeMat(M("Windows"), lit, m =>
+        {
+            m.SetColor("_BaseColor", new Color(0.16f, 0.19f, 0.24f));
+            m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", new Color(1f, 0.82f, 0.5f) * 1.4f);
+            m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+            m.SetFloat("_Smoothness", 0.6f); m.enableInstancing = true;
+        }) : null;
         Material waterMat = null, cascadeMat = null;
         switch (T.water)
         {
@@ -622,6 +643,7 @@ public static partial class ThemedLevelBuilder
                     if (!Chance(prob) || MeshNormal(px, pz).y < 0.72f) continue;
                     string kind = PickTree();
                     if (kind == "building" && d < 24f) continue;   // prédios longe do caminho, para não tapar a vista
+                    if (kind == "building") { PlaceBuilding(new Vector3(px, h - 0.15f, pz), d < 26f); treeCount++; continue; }
                     PlaceProp(kind, new Vector3(px, h - 0.15f, pz), Vector3.up, d < 26f, 1f, 0f);
                     treeCount++;
                 }
@@ -741,6 +763,7 @@ public static partial class ThemedLevelBuilder
         if (T.key == "Vulcao") BuildVolcano(env, waterMat);
         if (T.key == "Noronha") BuildNoronha(env);
         if (T.key == "SaoPaulo") BuildSaoPaulo(env);
+        if (T.key == "Rio") BuildRio(env);
         if (T.terrain == TerrainMode.None) BuildSkyIslands(x0, x1, z0, z1, infos);
         if (T.lightShafts) BuildShafts(env, shaftMat, sunDir);
         if (T.caveLights) BuildCaveCrystals(env);
@@ -783,6 +806,11 @@ public static partial class ThemedLevelBuilder
             var lf = env.gameObject.AddComponent<LightningFlashes>();
             var so = new SerializedObject(lf); so.FindProperty("targetLight").objectReferenceValue = light; so.ApplyModifiedPropertiesWithoutUndo();
         }
+        if (windowMat != null)
+        {
+            var cl = env.gameObject.AddComponent<CityLights>();
+            var so = new SerializedObject(cl); so.FindProperty("windows").objectReferenceValue = windowMat; so.ApplyModifiedPropertiesWithoutUndo();
+        }
 
         // ---------------- camera + post
         var cam = Camera.main;
@@ -790,7 +818,7 @@ public static partial class ThemedLevelBuilder
         camData.renderPostProcessing = true;
         camData.antialiasing = AntialiasingMode.SubpixelMorphologicalAntiAliasing;
         camData.antialiasingQuality = AntialiasingQuality.High;
-        cam.farClipPlane = T.terrain == TerrainMode.None ? 600f : 450f;
+        cam.farClipPlane = T.terrain == TerrainMode.None ? 600f : (T.key == "Rio" ? 760f : 450f);   // Rio: Cristo ao fundo
 
         var profilePath = $"{dir}/VP_Level{level:00}.asset";
         AssetDatabase.DeleteAsset(profilePath);
@@ -1116,6 +1144,19 @@ public static partial class ThemedLevelBuilder
             ParticleSystem.MainModule main;
             switch (T.particles)
             {
+                case ParticleMode.Rain:
+                    ps = Particles("Rain", pr, c + Vector3.up * 14f, foamMat); main = ps.main;
+                    main.startLifetime = new ParticleSystem.MinMaxCurve(0.9f, 1.2f); main.startSpeed = 0f;
+                    main.startSize = new ParticleSystem.MinMaxCurve(0.035f, 0.055f); main.maxParticles = 700;
+                    main.startColor = new ParticleSystem.MinMaxGradient(new Color(0.75f, 0.8f, 0.88f, 0.45f), new Color(0.85f, 0.88f, 0.95f, 0.6f));
+                    {
+                        var em = ps.emission; em.rateOverTime = T.particleRate;
+                        var sh = ps.shape; sh.shapeType = ParticleSystemShapeType.Box; sh.scale = new Vector3(38f, 2f, 38f);
+                        var vel = ps.velocityOverLifetime; vel.enabled = true; vel.space = ParticleSystemSimulationSpace.World;
+                        vel.x = new ParticleSystem.MinMaxCurve(-1.5f, -1f); vel.y = new ParticleSystem.MinMaxCurve(-24f, -20f); vel.z = new ParticleSystem.MinMaxCurve(0.5f, 1f);
+                        var rr = ps.GetComponent<ParticleSystemRenderer>(); rr.renderMode = ParticleSystemRenderMode.Stretch; rr.velocityScale = 0.045f; rr.lengthScale = 1f;
+                    }
+                    break;
                 case ParticleMode.Snow:
                     ps = Particles("Snow", pr, c + Vector3.up * 10f, foamMat); main = ps.main;
                     main.startLifetime = new ParticleSystem.MinMaxCurve(10f, 14f); main.startSpeed = 0f;

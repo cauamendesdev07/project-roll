@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     public static readonly string[] LevelNames =
     {
         "Amazônia", "Caatinga", "Cerrado", "Pantanal", "Fernando de Noronha",
-        "Lençóis Maranhenses", "Gruta do Lago Azul", "Urupema – Capital do Frio", "São Paulo", "Acima das Nuvens",
+        "Lençóis Maranhenses", "Gruta do Lago Azul", "Urupema – Capital do Frio", "Terra da Garoa", "Cidade Maravilhosa",
     };
 
     public const string MainMenuScene = "MainMenu";

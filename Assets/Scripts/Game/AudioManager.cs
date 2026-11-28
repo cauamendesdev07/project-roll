@@ -14,7 +14,9 @@ public class AudioManager : MonoBehaviour
 
     private static AudioManager instance;
 
-    private AudioSource music, ambA, ambB, roll;
+    private AudioSource music, musicB, ambA, ambB, roll;
+    private AudioSource musicCurrent, musicOld;
+    private float musicFade = 1f;
     private readonly AudioSource[] pool = new AudioSource[10];
     private int poolNext;
     private readonly Dictionary<string, AudioClip> clips = new();
@@ -27,6 +29,7 @@ public class AudioManager : MonoBehaviour
     {
         instance = this;
         music = NewSource("Music", true);
+        musicB = NewSource("MusicB", true);
         ambA = NewSource("AmbientA", true);
         ambB = NewSource("AmbientB", true);
         roll = NewSource("Roll", true);
@@ -34,6 +37,7 @@ public class AudioManager : MonoBehaviour
 
         music.clip = Clip("Music/music");
         if (music.clip != null) music.Play();
+        musicCurrent = music;
         roll.clip = Clip("Sfx/roll");
         roll.volume = 0f;
         if (roll.clip != null) roll.Play();
@@ -104,10 +108,24 @@ public class AudioManager : MonoBehaviour
         instance.rollPitch = 0.7f + 0.6f * k;
     }
 
-    // Troca o ambiente para a fase (0 = menu, sem ambiente).
+    // Música de cada fase: a do Rio (10) é bossa nova; as outras usam a faixa comum.
+    private static string MusicFor(int level) => level == 10 ? "Music/bossa" : "Music/music";
+
+    // Troca o ambiente (e a música, se mudar) para a fase (0 = menu, sem ambiente).
     public void SetLevel(int level)
     {
         rollTarget = 0f;
+        var song = Clip(MusicFor(level));
+        if (song != null && musicCurrent.clip != song)
+        {
+            musicOld = musicCurrent;
+            musicCurrent = musicCurrent == music ? musicB : music;
+            musicCurrent.clip = song;
+            musicCurrent.volume = 0f;
+            musicCurrent.Play();
+            musicFade = 0f;
+        }
+
         var clip = level > 0 ? Clip($"Ambient/amb_{level:00}") : null;
         if (ambCurrent.clip == clip && (clip == null || ambCurrent.isPlaying))
             return;
@@ -127,7 +145,13 @@ public class AudioManager : MonoBehaviour
     private void Update()
     {
         float sfx = GameSettings.SfxVolume;
-        music.volume = MusicBase * GameSettings.MusicVolume;
+        musicFade = Mathf.MoveTowards(musicFade, 1f, Time.unscaledDeltaTime / FadeTime);
+        musicCurrent.volume = MusicBase * GameSettings.MusicVolume * musicFade;
+        if (musicOld != null)
+        {
+            musicOld.volume = MusicBase * GameSettings.MusicVolume * (1f - musicFade);
+            if (musicFade >= 1f) { musicOld.Stop(); musicOld = null; }
+        }
 
         // Troca do ambiente em tempo real (funciona com o jogo pausado).
         ambFade = Mathf.MoveTowards(ambFade, 1f, Time.unscaledDeltaTime / FadeTime);

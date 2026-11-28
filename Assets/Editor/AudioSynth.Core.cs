@@ -24,6 +24,7 @@ public static partial class AudioSynth
         GenerateSfx();
         GenerateAmbient();
         GenerateMusic();
+        GenerateBossa();
         AssetDatabase.Refresh();
         ConfigureImporters();
         Debug.Log("Sons gerados em " + Root);

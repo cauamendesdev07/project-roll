@@ -8,6 +8,9 @@ public class LightningFlashes : MonoBehaviour
     [SerializeField] private float flashIntensity = 3.5f;
     [SerializeField] private Vector2 interval = new Vector2(4f, 10f);
 
+    // Avisado a cada relâmpago (ex.: as luzes da cidade apagam).
+    public static event System.Action Struck;
+
     private float baseIntensity;
     private Color baseColor;
     private float nextFlash;
@@ -28,6 +31,7 @@ public class LightningFlashes : MonoBehaviour
         if (Time.time >= nextFlash)
         {
             flashTime = Time.time;
+            Struck?.Invoke();
             // trovão chega um pouco depois do clarão
             AudioManager.PlayDelayed("thunder", Random.Range(0.2f, 1.1f), Random.Range(0.45f, 0.9f), 1f, 0.12f);
             nextFlash = Time.time + Random.Range(interval.x, interval.y);

@@ -21,7 +21,7 @@ public class BallVisuals : MonoBehaviour
         new Color(0.55f, 0.60f, 0.70f), // Gruta do Lago Azul
         new Color(0.95f, 0.97f, 1.00f), // Urupema (geada)
         new Color(0.32f, 0.29f, 0.28f), // São Paulo (poeira de asfalto)
-        new Color(0.95f, 0.96f, 1.00f), // Céu
+        new Color(0.93f, 0.84f, 0.64f), // Rio de Janeiro (areia)
     };
 
     private Rigidbody rb;

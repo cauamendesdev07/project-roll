@@ -9,7 +9,7 @@ public static partial class AudioSynth
 
     private static void GenerateAmbient()
     {
-        Func<float[]>[] biomes = { Amazon, Caatinga, Cerrado, Pantanal, Island, Lencois, Cave, Serra, City, Sky };
+        Func<float[]>[] biomes = { Amazon, Caatinga, Cerrado, Pantanal, Island, Lencois, Cave, Serra, City, Rio };
         for (int i = 0; i < biomes.Length; i++)
         {
             Seed(1000 + i * 37);
@@ -474,6 +474,7 @@ public static partial class AudioSynth
         });
         Scatter(o, 0.45f, Honk, 0.06f, 0.22f);
         Mix(o, Siren(Range(4f, 6f)), (int)(Rand() * n), 0.05f, true);
+        Mix(o, Rain(0.55f), 1f);   // chuva forte
         return o;
     }
 
@@ -523,6 +524,14 @@ public static partial class AudioSynth
         Mix(o, hiss, 1f);
         Scatter(o, 6f, Bloop, 0.08f, 0.3f);
         Scatter(o, 3f, () => Click(AmbRate, Range(1500f, 3000f), Range(0.003f, 0.008f)), 0.03f, 0.12f);
+        return o;
+    }
+
+    // Rio: mar na praia, gaivotas e a cidade ao longe.
+    private static float[] Rio()
+    {
+        var o = Sum(Waves(0.9f), Rumble(150f, 0.25f), Wind(700f, 500f, 0.6f, 0.2f, 0.4f, 1, 2));
+        Scatter(o, 0.18f, Gull, 0.05f, 0.14f);
         return o;
     }
 

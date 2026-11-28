@@ -24,6 +24,11 @@ public class InstancedDecor : MonoBehaviour
 
     private Matrix4x4[] matrices;
 
+    public Material SharedMaterial => material;
+
+    // Troca o material em tempo de jogo (ex.: luzes da cidade apagando com o relâmpago).
+    public void UseMaterial(Material newMaterial) => material = newMaterial;
+
     private void OnEnable()
     {
         BuildMatrices();

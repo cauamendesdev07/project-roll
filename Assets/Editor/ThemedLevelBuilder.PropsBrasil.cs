@@ -248,29 +248,49 @@ public static partial class ThemedLevelBuilder
         mb.Quad(P(-1, -1, -1), P(1, -1, -1), P(1, -1, 1), P(-1, -1, 1), uv, Vector3.down);
     }
 
-    // Prédio: caixa em faixas de andar (janela escura / parede), às vezes com recuo no alto,
-    // caixa d'água e antena. A base desce bastante para não flutuar em encostas.
-    static MB Building(float H, int seed) => WithSeed(seed, mb =>
+    // Prédio: casco em faixas de andar (parede / faixa escura das janelas), às vezes com recuo,
+    // caixa d'água e antena; e uma malha separada com as janelas acesas (algumas apagadas),
+    // um pouco para fora da parede, desenhada com o material de janelas (acende/apaga).
+    // A base desce bastante para não flutuar em encostas.
+    static readonly Dictionary<int, (MB shell, MB windows)> buildingCache = new Dictionary<int, (MB, MB)>();
+
+    static (MB shell, MB windows) BuildingPair(float H, int seed)
     {
+        if (buildingCache.TryGetValue(seed, out var cached)) return cached;
+        var keep = rng; rng = new System.Random(seed);
+        var mb = new MB(); var win = new MB();
         float w = Rf(7f, 13f), d = Rf(7f, 13f), h = H * Rf(0.55f, 1.35f);
         R[] walls = { R.Cream, R.Rock, R.RockMoss, R.Dirt, R.WoodRing };
         R wall = walls[Ri(0, walls.Length - 1)];
-        float floor = 3.2f;
+        var winUv = UV(R.FlowerWhite, 7);
         void Box(float x0, float z0, float x1, float z1, float y0, float y1, bool windows)
         {
             var c = new[] { new Vector3(x0, 0, z0), new Vector3(x1, 0, z0), new Vector3(x1, 0, z1), new Vector3(x0, 0, z1) };
+            var center = new Vector3((x0 + x1) * 0.5f, 0, (z0 + z1) * 0.5f);
             for (int f = 0; f < 4; f++)
             {
                 var a = c[f]; var b = c[(f + 1) % 4];
-                var outward = Vector3.Cross(b - a, Vector3.up).normalized * -1f;
+                var mid = (a + b) * 0.5f; var outward = (mid - center).normalized;
                 float y = y0;
                 int band = 0;
                 while (y < y1 - 0.01f)
                 {
-                    float hb = band == 0 && y == y0 ? Mathf.Min(y1 - y, Mathf.Max(floor, 6f)) : Mathf.Min(y1 - y, band % 2 == 0 ? 1.6f : 3.2f);   // faixas altas: metade da geometria
-                    bool win = windows && band % 2 == 1;
-                    var uv = win ? UV(R.RiverBed, Ri(3, 6)) : UV(wall, Ri(3, 5));
+                    float hb = band == 0 ? Mathf.Min(y1 - y, 6f) : Mathf.Min(y1 - y, band % 2 == 0 ? 1.6f : 3.2f);
+                    bool isWin = windows && band % 2 == 1 && band > 0;
+                    var uv = isWin ? UV(R.RiverBed, Ri(3, 5)) : UV(wall, Ri(3, 5));
                     mb.Quad(a + Vector3.up * y, b + Vector3.up * y, b + Vector3.up * (y + hb), a + Vector3.up * (y + hb), uv, outward);
+                    if (isWin && y + hb > 0f)
+                    {
+                        // janelas acesas: trechos da faixa, alguns apagados
+                        int segs = Mathf.Max(1, Mathf.RoundToInt((b - a).magnitude / 2.2f));
+                        for (int k = 0; k < segs; k++)
+                        {
+                            if (!Chance(0.55f)) continue;
+                            var p0 = Vector3.Lerp(a, b, (k + 0.15f) / segs) + outward * 0.05f;
+                            var p1 = Vector3.Lerp(a, b, (k + 0.85f) / segs) + outward * 0.05f;
+                            win.Quad(p0 + Vector3.up * (y + 0.5f), p1 + Vector3.up * (y + 0.5f), p1 + Vector3.up * (y + hb - 0.5f), p0 + Vector3.up * (y + hb - 0.5f), winUv, outward);
+                        }
+                    }
                     y += hb; band++;
                 }
             }
@@ -290,9 +310,13 @@ public static partial class ThemedLevelBuilder
         if (Chance(0.35f))
         {
             var rings = Prism(new Vector3(0, top, 0), 4, new[] { (0f, 0.15f), (h * 0.18f, 0.05f) }, 0.4f, 0f, 0f);
-            Loft(mb, rings, (i, j, n) => UV(R.Cream, 6), Vector3.up * top, Vector3.up * (top + 1));
+            Loft(mb, rings, (i2, j2, n2) => UV(R.Cream, 6), Vector3.up * top, Vector3.up * (top + 1));
         }
-    });
+        rng = keep;
+        var pair = (mb, win);
+        buildingCache[seed] = pair;
+        return pair;
+    }
 
     // Poste de rua.
     static MB Lamp(int seed) => WithSeed(seed, mb =>
@@ -416,6 +440,66 @@ public static partial class ThemedLevelBuilder
             }
         }
         MeshObject("Viaducts", env, Reg(deck.Build("Viaducts")), atlasMat, Vector3.zero, Quaternion.identity, Vector3.one, true, true);
+    }
+
+    // ------------------------------------------------------------ Rio de Janeiro
+
+    // Casinha de morro: caixa colorida com laje, às vezes um segundo andar.
+    static MB House(int seed) => WithSeed(seed, mb =>
+    {
+        R[] colors = { R.MushCap, R.FlowerYellow, R.Cream, R.RiverBed, R.WoodRing, R.Fern, R.FlowerWhite };
+        var c = colors[Ri(0, colors.Length - 1)];
+        float w = Rf(2.2f, 3.4f), d = Rf(2.2f, 3.2f), h = Rf(2.2f, 2.8f);
+        BoxMB(mb, new Vector3(0, h * 0.5f - 1f, 0), new Vector3(w, h + 2f, d), UV(c, Ri(3, 5)), UV(R.Rock, 3));
+        BoxMB(mb, new Vector3(w * 0.25f, h - 0.4f, d * 0.51f), new Vector3(0.6f, 0.8f, 0.05f), UV(R.Bark, 1));
+        if (Chance(0.45f))
+        {
+            var c2 = colors[Ri(0, colors.Length - 1)];
+            BoxMB(mb, new Vector3(Rf(-0.3f, 0.3f), h + h * 0.4f, 0), new Vector3(w * 0.8f, h * 0.8f, d * 0.85f), UV(c2, Ri(3, 5)), UV(R.Rock, 3));
+        }
+    });
+
+    // Cristo Redentor (≈ 26 m): pedestal, túnica, braços abertos e cabeça.
+    static void Christ(MB mb, Vector3 b)
+    {
+        var stone = UV(R.Cream, 5);
+        BoxMB(mb, b + new Vector3(0, 3f, 0), new Vector3(5f, 6f, 5f), UV(R.Cream, 4));
+        var robe = Prism(b + Vector3.up * 6f, 8, new[] { (0f, 2.4f), (8f, 1.9f), (15f, 1.7f), (19f, 1.9f) }, 0.2f, 0f, 0f);
+        Loft(mb, robe, (i, j, n) => UV(R.Cream, 4 + (j % 2)), b, b + Vector3.up);
+        Fan(mb, b + Vector3.up * 25.4f, robe[robe.Count - 1], () => stone, Vector3.up);
+        BoxMB(mb, b + new Vector3(0, 24.2f, 0), new Vector3(28f, 1.6f, 1.6f), stone);          // braços
+        BoxMB(mb, b + new Vector3(0, 22.5f, 0), new Vector3(4.6f, 4f, 2.4f), stone);           // ombros/peito
+        Blob(mb, b + new Vector3(0, 26.8f, 0), new Vector3(1.2f, 1.5f, 1.3f), 0f, 1, n => stone); // cabeça
+    }
+
+    // Corcovado com o Cristo e Pão de Açúcar (com o morro da Urca e o bondinho), ao fundo.
+    static void BuildRio(Transform env)
+    {
+        var a0 = mainPath[0]; var a1 = mainPath[mainPath.Count - 1];
+        var c2 = (a0 + a1) * 0.5f; var dir2 = (a1 - a0).normalized; var side2 = new Vector2(-dir2.y, dir2.x);
+        Vector3 At(float fwd, float side) { var p = c2 + dir2 * fwd + side2 * side; return new Vector3(p.x, 0, p.y); }
+        float y0 = T.waterY - 6f;
+        var mb = new MB();
+
+        // Corcovado: pico íngreme e coberto de mata, com o Cristo no alto
+        var corc = At(260f, -110f);
+        Mount(mb, corc, new[] { (80f, y0), (66f, T.waterY + 6f), (48f, 30f), (32f, 60f), (20f, 88f), (12f, 104f), (7f, 112f) }, 16, 96f, 0.12f);
+        Christ(mb, corc + Vector3.up * 111f);
+
+        // Pão de Açúcar e Urca: domos arredondados no mar
+        var pao = At(210f, 150f);
+        Mount(mb, pao, new[] { (32f, y0), (31f, T.waterY + 3f), (29f, 30f), (25f, 58f), (19f, 80f), (12f, 94f), (5f, 101f), (1.5f, 103f) }, 16, 22f, 0.05f);
+        var urca = pao + new Vector3(side2.x, 0, side2.y) * -70f + new Vector3(dir2.x, 0, dir2.y) * -30f;
+        Mount(mb, urca, new[] { (34f, y0), (32f, T.waterY + 3f), (28f, 18f), (20f, 34f), (10f, 43f), (3f, 46f) }, 14, 38f, 0.06f);
+
+        // bondinho: cabo e uma cabine no meio
+        var topPao = pao + Vector3.up * 102f; var topUrca = urca + Vector3.up * 46f;
+        var cable = (topPao - topUrca); var n = Vector3.Cross(cable.normalized, Vector3.up).normalized * 0.12f;
+        mb.Quad(topUrca - n, topPao - n, topPao + n, topUrca + n, UV(R.Bark, 1), Vector3.up);
+        mb.Quad(topUrca + n, topPao + n, topPao - n, topUrca - n, UV(R.Bark, 1), Vector3.down);
+        BoxMB(mb, Vector3.Lerp(topUrca, topPao, 0.45f) + Vector3.down * 2.2f, new Vector3(2.4f, 2.6f, 2.4f), UV(R.MushCap, 4));
+
+        MeshObject("RioLandmarks", env, Reg(mb.Build("RioLandmarks")), atlasMat, Vector3.zero, Quaternion.identity, Vector3.one, true, true);
     }
 
     // ------------------------------------------------------------ Fernando de Noronha

@@ -6,7 +6,7 @@ using UnityEngine;
 public static partial class ThemedLevelBuilder
 {
     enum WaterMode { None, Water, Ice, Lava, Clouds }
-    enum ParticleMode { Pollen, Dust, Fireflies, Snow, Embers, Spores, Sparkles, Sand }
+    enum ParticleMode { Pollen, Dust, Fireflies, Snow, Embers, Spores, Sparkles, Sand, Rain }
 
     class Theme
     {
@@ -34,6 +34,7 @@ public static partial class ThemedLevelBuilder
         public bool caveLights, neutralTonemap;
         public Color waterGlow = Color.black;   // emissão da água (lago luminoso)
         public bool limestone;                  // gruta de calcário: sem cristais, luz azul refletida do lago
+        public bool cityLights;                 // janelas acesas que apagam com os relâmpagos
     }
 
     static Color C(string h) => Hex(h);
@@ -185,16 +186,16 @@ public static partial class ThemedLevelBuilder
             };
             case 9: return new Theme
             {
-                key = "SaoPaulo", title = "São Paulo",
+                key = "SaoPaulo", title = "Terra da Garoa",
                 atlas = new[] { "#8C8A84", "#A4A29A", "#2E4A36", "#3E6040", "#5E7E44", "#3A3632", "#B07A5A", "#7C7C78", "#9A968C", "#C8B48E", "#4A5C70", "#C23A32", "#E2DCCC", "#E8B830", "#F2F0EA", "#5A6A4A" },
-                skyZenith = C("#8496AA"), skyHorizon = C("#C9B89C"), cloudCol = C("#C8C0B4"), cloudAmount = 0.7f,
-                sunCol = C("#FFD9A8"), sunElev = 30, sunYaw = 300, sunIntensity = 1.3f,
-                ambSky = C("#A8B0BC"), ambEq = C("#9A9488"), ambGround = C("#4A4640"),
-                fogCol = C("#A69C8A"), fogStart = 25, fogEnd = 210,
-                waterCol = C("#5A4E38"), waterAlpha = 0.9f, woodStumps = false,
-                particles = ParticleMode.Dust, particleA = C("#9A948A"), particleB = C("#7A746A"), particleRate = 22f,
+                skyZenith = C("#3E4652"), skyHorizon = C("#7A7C82"), cloudCol = C("#555A62"), cloudAmount = 0.95f,
+                sunCol = C("#C8D0DC"), sunElev = 35, sunYaw = 300, sunIntensity = 0.85f,
+                ambSky = C("#7E8896"), ambEq = C("#6A6C70"), ambGround = C("#34322E"),
+                fogCol = C("#6A6E76"), fogStart = 18, fogEnd = 175,
+                waterCol = C("#5A4E38"), waterAlpha = 0.9f, woodStumps = false, lightning = true, cityLights = true,
+                particles = ParticleMode.Rain, particleA = C("#C8D0DC"), particleB = C("#E0E4EC"), particleRate = 420f,
                 accent = C("#FFB04A"), glow = C("#FFB04A"),
-                exposure = 0.1f, contrast = 12f, saturation = -8f, temperature = 4f, tint = 0f, bloom = 0.35f, vignette = 0.26f, vignetteCol = C("#1A1814"),
+                exposure = 0.3f, contrast = 12f, saturation = -10f, temperature = -2f, tint = 0f, bloom = 0.6f, vignette = 0.28f, vignetteCol = C("#101216"),
                 trees = new[] { "building", "bush" }, treeWeights = new[] { 0.85f, 0.15f }, treeDensity = 0.5f, gorgeTree = "lamp",
                 decor = new[] { ("tuft", 0.06f), ("bush", 0.02f), ("rock", 0.01f), ("lamp", 0.008f) },
                 topDecor = new[] { "tuft", "rooftop" },
@@ -203,21 +204,21 @@ public static partial class ThemedLevelBuilder
             };
             default: return new Theme
             {
-                key = "Ceu", title = "Acima das Nuvens",
-                atlas = new[] { "#5E9A5A", "#82B86A", "#244A44", "#2F6250", "#6A9A5E", "#4E4040", "#A88A6A", "#5A5670", "#6A7A6A", "#5A4A48", "#3A3A55", "#B98CFF", "#D8D2E8", "#F2D25A", "#EAE6FF", "#3A5A4A" },
-                skyZenith = C("#0B0E24"), skyHorizon = C("#3A3260"), cloudCol = C("#4A4478"), cloudAmount = 0.5f, stars = true,
-                sunCol = C("#B8C6FF"), sunElev = 40, sunYaw = 300, sunIntensity = 1.15f,
-                ambSky = C("#5A62A0"), ambEq = C("#40447A"), ambGround = C("#20203A"),
-                fogCol = C("#2A2850"), fogStart = 40, fogEnd = 260,
-                terrain = TerrainMode.None, water = WaterMode.Clouds, waterCol = C("#5A5490"), floatingOnly = true, woodStumps = false, lightning = true,
-                particles = ParticleMode.Sparkles, particleA = C("#DCD6FF"), particleB = C("#B98CFF"), particleRate = 12f,
-                accent = C("#B98CFF"), glow = C("#B98CFF"),
-                exposure = 0.55f, contrast = 12f, saturation = 26f, temperature = -8f, tint = 6f, bloom = 0.7f, vignette = 0.28f, vignetteCol = C("#05040F"),
-                trees = new[] { "pine", "broadleaf" }, treeWeights = new[] { 0.6f, 0.4f }, treeDensity = 0f, gorgeTree = "",
-                decor = new (string, float)[0],
+                key = "Rio", title = "Cidade Maravilhosa",
+                atlas = new[] { "#5E9A4A", "#86B85E", "#2A5A3A", "#3C7A44", "#6CAA48", "#6A5040", "#C8925A", "#6E6A66", "#7E8A6A", "#EED6A0", "#3A6A9A", "#D8483A", "#EDE4D2", "#F2C24A", "#FFF8EE", "#4E8A4E" },
+                skyZenith = C("#2A7AD8"), skyHorizon = C("#BFE2F6"), cloudCol = C("#FFFFFF"), cloudAmount = 0.2f,
+                sunCol = C("#FFF2DC"), sunElev = 52, sunYaw = 300, sunIntensity = 1.45f,
+                ambSky = C("#BFDDF2"), ambEq = C("#A8D0C0"), ambGround = C("#6E6450"),
+                fogCol = C("#C4E2F4"), fogStart = 110, fogEnd = 640,
+                terrain = TerrainMode.Ocean, waterCol = C("#2E8AA0"), waterAlpha = 0.75f, woodStumps = false,
+                particles = ParticleMode.Sparkles, particleA = C("#FFFFFF"), particleB = C("#E8F6FF"), particleRate = 8f,
+                accent = C("#FFB04A"), glow = C("#FFB04A"),
+                exposure = 0.2f, contrast = 11f, saturation = 26f, temperature = 3f, tint = 0f, bloom = 0.5f, vignette = 0.22f, vignetteCol = C("#1A0E10"),
+                trees = new[] { "palm", "broadleaf" }, treeWeights = new[] { 0.45f, 0.55f }, treeDensity = 0.45f, gorgeTree = "palm",
+                decor = new[] { ("tuft", 0.25f), ("bush", 0.05f), ("house", 0.03f), ("rock", 0.02f), ("flower", 0.02f) },
                 topDecor = new[] { "tuft", "flower" },
-                plateauTree = "pine", plateauTree2 = "broadleaf",
-                hazardCol = C("#2A2448"), hazardIsCloud = true,
+                plateauTree = "palm", plateauTree2 = "broadleaf",
+                hazardCol = C("#2A7A8A"), hazardWater = true,
             };
         }
     }

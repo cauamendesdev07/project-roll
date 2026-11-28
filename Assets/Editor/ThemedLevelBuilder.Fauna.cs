@@ -715,10 +715,11 @@ public static partial class ThemedLevelBuilder
                 Birds("Pombo", 6, 1.4f, false, 4f, 10f, 6f, 12f, 3.4f);
                 Birds("Urubu", 2, 1.6f, true, 22f, 30f, 14f, 20f, 1.6f);
                 break;
-            case "Ceu":
-                Birds("Harpia", 2, 1.5f, true, 6f, 14f, 12f, 18f, 1.4f);
-                Perch("Coruja", GatePerch(finish, 0.9f), 1.8f * GateScale(finish));
-                Perch("Coruja", TreeTop(start), 1.8f);
+            case "Rio":
+                Birds("Fragata", 2, 1.6f, true, 14f, 22f, 12f, 18f, 1.2f);
+                Birds("Gaivota", 3, 1.5f, true, 5f, 12f, 8f, 14f, 2.4f);
+                Leapers("Boto", 2, 0.9f, 2.2f, 1.2f, 7f, 10f, 45f);
+                Perch("Tucano", GatePerch(finish, 0.9f), 1.6f * GateScale(finish));
                 break;
         }
 
