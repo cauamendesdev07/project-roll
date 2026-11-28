@@ -27,6 +27,7 @@ public class BallVisuals : MonoBehaviour
     private Rigidbody rb;
     private TrailRenderer trail;
     private ParticleSystem dust;
+    private ParticleSystem poof;
     private Color dustColor = new Color(0.7f, 0.65f, 0.55f);
 
     private void Awake()
@@ -50,12 +51,13 @@ public class BallVisuals : MonoBehaviour
         {
             BuildTrail(fx);
             BuildDust(fx);
+            BuildPoof(fx);
         }
 
         var controller = GetComponent<PlayerController>();
         if (controller != null) controller.Landed += OnLanded;
         var checkpoint = GetComponent<CheckpointSystem>();
-        if (checkpoint != null) checkpoint.Respawned += ClearTrail;
+        if (checkpoint != null) checkpoint.Respawned += OnRespawned;
     }
 
     private void OnDestroy()
@@ -63,8 +65,9 @@ public class BallVisuals : MonoBehaviour
         var controller = GetComponent<PlayerController>();
         if (controller != null) controller.Landed -= OnLanded;
         var checkpoint = GetComponent<CheckpointSystem>();
-        if (checkpoint != null) checkpoint.Respawned -= ClearTrail;
+        if (checkpoint != null) checkpoint.Respawned -= OnRespawned;
         if (dust != null) Destroy(dust.gameObject);
+        if (poof != null) Destroy(poof.gameObject);
     }
 
     private void BuildTrail(Material fx)
@@ -167,9 +170,61 @@ public class BallVisuals : MonoBehaviour
         dust.Emit(emit, Mathf.RoundToInt(Mathf.Lerp(10f, 30f, k)));
     }
 
-    // Respawn: o rastro não pode riscar a tela do vazio até o checkpoint.
-    public void ClearTrail()
+    // Respawn: limpa o rastro (não pode riscar a tela do vazio até o checkpoint) e solta o "poof".
+    private void OnRespawned()
     {
         if (trail != null) trail.Clear();
+        if (poof != null)
+        {
+            poof.transform.position = transform.position;
+            poof.Emit(26);
+        }
+    }
+
+    // "Poof" no ponto onde a bola reaparece: esfera de partículas claras que se espalham e somem.
+    private void BuildPoof(Material fx)
+    {
+        var go = new GameObject("BallPoof");
+        poof = go.AddComponent<ParticleSystem>();
+        poof.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+        var main = poof.main;
+        main.playOnAwake = false;
+        main.loop = false;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.35f, 0.6f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(2f, 4.5f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.2f, 0.45f);
+        main.startColor = new Color(1f, 0.97f, 0.88f, 0.9f);
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.maxParticles = 60;
+
+        var emission = poof.emission;
+        emission.rateOverTime = 0f;
+
+        var shape = poof.shape;
+        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.radius = 0.45f;
+
+        var limit = poof.limitVelocityOverLifetime;
+        limit.enabled = true;
+        limit.dampen = 0.2f;
+        limit.limit = 0.5f;
+
+        var size = poof.sizeOverLifetime;
+        size.enabled = true;
+        size.size = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(1f, 0.2f)));
+
+        var color = poof.colorOverLifetime;
+        color.enabled = true;
+        var g = new Gradient();
+        g.SetKeys(
+            new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+            new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0f, 1f) });
+        color.color = g;
+
+        var r = go.GetComponent<ParticleSystemRenderer>();
+        r.sharedMaterial = fx;
+        r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        r.receiveShadows = false;
     }
 }

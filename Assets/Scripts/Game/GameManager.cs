@@ -138,6 +138,7 @@ public class GameManager : MonoBehaviour
     {
         LevelDeaths++;
         AudioManager.Play("respawn", 0.7f);
+        ui.FlashRespawn();
         Respawned?.Invoke();
     }
 

@@ -13,6 +13,8 @@ public class GameUI : MonoBehaviour
     private TextMeshProUGUI hudLevel, hudName, hudDeaths, hudTime;
     private TextMeshProUGUI completeTitle, completeStats, endStats;
     private CanvasGroup completeGroup;
+    private Image respawnFlash;
+    private float respawnFlashAt = -10f;
     private float completeShownAt;
 
     public Transform Root => canvas.transform;
@@ -22,6 +24,7 @@ public class GameUI : MonoBehaviour
     private void Awake()
     {
         BuildCanvas();
+        BuildRespawnFlash();
         BuildHud();
         BuildPause();
         BuildLevelComplete();
@@ -50,6 +53,21 @@ public class GameUI : MonoBehaviour
         es.transform.SetParent(transform, false);
         eventSystem = es.AddComponent<EventSystem>();
         es.AddComponent<InputSystemUIInputModule>();
+    }
+
+    // Escurecida rápida no respawn (abaixo da HUD; não bloqueia cliques).
+    private void BuildRespawnFlash()
+    {
+        respawnFlash = UiKit.Img("RespawnFlash", canvas.transform, new Color(0.03f, 0.04f, 0.05f, 0f));
+        UiKit.Stretch(respawnFlash.rectTransform);
+        respawnFlash.raycastTarget = false;
+        respawnFlash.gameObject.SetActive(false);
+    }
+
+    public void FlashRespawn()
+    {
+        respawnFlashAt = Time.unscaledTime;
+        respawnFlash.gameObject.SetActive(true);
     }
 
     private void BuildHud()
@@ -141,6 +159,7 @@ public class GameUI : MonoBehaviour
         pause.SetActive(false);
         levelComplete.SetActive(false);
         gameComplete.SetActive(false);
+        respawnFlash.gameObject.SetActive(false);
 
         // Menu principal: o menu montado por código substitui o Canvas antigo da cena.
         if (level == 0 && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == GameManager.MainMenuScene)
@@ -171,6 +190,16 @@ public class GameUI : MonoBehaviour
         {
             hudTime.text = GameManager.FormatTime(gm.LevelTime);
             hudDeaths.text = gm.LevelDeaths == 1 ? "1 queda" : $"{gm.LevelDeaths} quedas";
+        }
+
+        if (respawnFlash.gameObject.activeSelf)
+        {
+            // começa forte e some em ~0,3 s; o jogo segue normalmente por baixo
+            float t = (Time.unscaledTime - respawnFlashAt) / 0.3f;
+            var c = respawnFlash.color;
+            c.a = 0.6f * (1f - t) * (1f - t);
+            respawnFlash.color = c;
+            if (t >= 1f) respawnFlash.gameObject.SetActive(false);
         }
 
         if (levelComplete.activeSelf)
