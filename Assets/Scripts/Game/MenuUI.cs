@@ -34,7 +34,7 @@ public class MenuUI : MonoBehaviour
         var title = UiKit.Label("Title", menu.transform, "PROJECT ROLL", 110f, UiKit.Accent, TextAlignmentOptions.Center, true);
         UiKit.Anchor(title.rectTransform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1), new Vector2(0, -120), new Vector2(0, 140));
         title.outlineWidth = 0.25f;
-        var sub = UiKit.Label("Subtitle", menu.transform, "10 fases pelos biomas do Brasil", 30f, UiKit.Text, TextAlignmentOptions.Center);
+        var sub = UiKit.Label("Subtitle", menu.transform, "10 fases por paisagens e cidades do Brasil", 30f, UiKit.Text, TextAlignmentOptions.Center);
         UiKit.Anchor(sub.rectTransform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1), new Vector2(0, -260), new Vector2(0, 44));
 
         var col = UiKit.Rect("Buttons", menu.transform);

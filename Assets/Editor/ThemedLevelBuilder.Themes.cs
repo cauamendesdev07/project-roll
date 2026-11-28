@@ -167,7 +167,7 @@ public static partial class ThemedLevelBuilder
             };
             case 8: return new Theme
             {
-                key = "Urupema", title = "Urupema – Capital do Frio",
+                key = "Urupema", title = "Capital Nacional do Frio",
                 atlas = new[] { "#B89A58", "#D6CDB0", "#22402E", "#2F5A3C", "#6E8A4E", "#5A4636", "#9C7A54", "#7C705E", "#9C9270", "#6A5A44", "#A8D0E4", "#C8463A", "#F2F0EA", "#E8C25A", "#FFFFFF", "#8A8A60" },
                 skyZenith = C("#4C86C8"), skyHorizon = C("#DCE8F0"), cloudCol = C("#F4F6FA"), cloudAmount = 0.35f,
                 sunCol = C("#FFF0DC"), sunElev = 18, sunYaw = 300, sunIntensity = 1.15f,
