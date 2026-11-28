@@ -503,7 +503,8 @@ public static partial class ThemedLevelBuilder
 
         // material e paleta da fauna (compartilhados)
         Directory.CreateDirectory(SharedDir);
-        var pal = SharedTexture("T_FaunaPalette", Shades, Roles, (x, y) => ShadeColor(Hex(FaunaHex[y]), x),
+        var pal = SavePng($"{SharedDir}/T_FaunaPalette.png", Shades, Roles,   // regrava sempre: a paleta pode mudar
+             (x, y) => ShadeColor(Hex(FaunaHex[y]), x),
             imp => { imp.filterMode = FilterMode.Point; imp.mipmapEnabled = false; imp.wrapMode = TextureWrapMode.Clamp; imp.sRGBTexture = true; });
         faunaMat = MakeMat($"{SharedDir}/M_Fauna.mat", Shader.Find("Universal Render Pipeline/Lit"), m =>
         {
