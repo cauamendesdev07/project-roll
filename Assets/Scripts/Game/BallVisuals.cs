@@ -16,7 +16,7 @@ public class BallVisuals : MonoBehaviour
         new Color(0.80f, 0.66f, 0.50f), // Caatinga
         new Color(0.72f, 0.44f, 0.32f), // Cerrado
         new Color(0.45f, 0.39f, 0.29f), // Pantanal
-        new Color(0.93f, 0.86f, 0.70f), // Ilha
+        new Color(0.93f, 0.86f, 0.70f), // Fernando de Noronha
         new Color(0.98f, 0.96f, 0.91f), // Lençóis
         new Color(0.55f, 0.60f, 0.70f), // Gruta
         new Color(0.95f, 0.97f, 1.00f), // Neve

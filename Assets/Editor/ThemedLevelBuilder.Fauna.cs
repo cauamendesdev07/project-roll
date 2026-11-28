@@ -314,6 +314,8 @@ public static partial class ThemedLevelBuilder
             case "Urubu": return MakeBird(kind, new BirdSpec { L = 0.6f, body = F.Black, belly = F.Black, headF = F.Gray, beak = F.Gray, beakLen = 0.07f, tail = F.Black, tailLen = 0.22f, wing = F.Black, wingTip = F.Black, wingLen = 0.95f });
             case "Garca": return MakeBird(kind, new BirdSpec { L = 0.5f, body = F.White, belly = F.White, headF = F.White, beak = F.Yellow, beakLen = 0.2f, tail = F.White, tailLen = 0.15f, wing = F.White, wingTip = F.White, wingLen = 0.75f, neckLen = 0.35f, legLen = 0.4f, leg = F.Black });
             case "Tuiuiu": return MakeBird(kind, new BirdSpec { L = 0.72f, body = F.White, belly = F.White, headF = F.Black, beak = F.Black, beakLen = 0.36f, tail = F.White, tailLen = 0.18f, wing = F.White, wingTip = F.Black, wingLen = 1.05f, neckLen = 0.42f, legLen = 0.5f, leg = F.Black });
+            case "Atoba": return MakeBird(kind, new BirdSpec { L = 0.45f, body = F.White, belly = F.White, headF = F.DarkBrown, beak = F.Yellow, beakLen = 0.12f, tail = F.DarkBrown, tailLen = 0.18f, wing = F.DarkBrown, wingTip = F.DarkBrown, wingLen = 0.75f });
+            case "Fragata": return MakeBird(kind, new BirdSpec { L = 0.5f, body = F.Black, belly = F.Red, headF = F.Black, beak = F.Gray, beakLen = 0.14f, tail = F.Black, tailLen = 0.4f, wing = F.Black, wingTip = F.Black, wingLen = 1.15f });
             case "Gaivota": return MakeBird(kind, new BirdSpec { L = 0.4f, body = F.White, belly = F.White, headF = F.White, beak = F.Yellow, beakLen = 0.09f, tail = F.White, tailLen = 0.15f, wing = F.Gray, wingTip = F.Black, wingLen = 0.62f });
             case "GralhaAzul": return MakeBird(kind, new BirdSpec { L = 0.36f, body = F.Blue, belly = F.Blue, headF = F.Black, beak = F.Black, beakLen = 0.07f, tail = F.Blue, tailLen = 0.26f, wing = F.Blue, wingTip = F.Black, wingLen = 0.38f });
             case "Harpia": return MakeBird(kind, new BirdSpec { L = 0.85f, body = F.Gray, belly = F.White, headF = F.Gray, beak = F.Black, beakLen = 0.12f, tail = F.Gray, tailLen = 0.4f, wing = F.DarkBrown, wingTip = F.Black, wingLen = 1.25f });
@@ -654,10 +656,12 @@ public static partial class ThemedLevelBuilder
                 Birds("Tuiuiu", 2, 1.4f, true, 7f, 14f, 9f, 14f, 1.8f);
                 Birds("Garca", 3, 1.3f, false, 4f, 10f, 7f, 12f, 2f);
                 break;
-            case "Ilha":
-                Leapers("Boto", 3, 1f, 2.2f, 1.3f, 6f, 8f, 40f);
-                Swimmers("Tartaruga", 2, 1f, 0.35f, 0.08f, 6f, 30f);
-                Birds("Gaivota", 4, 1.5f, true, 5f, 12f, 8f, 14f, 2.4f);
+            case "Noronha":
+                // golfinhos-rotadores, tartarugas-marinhas, atobás e fragatas
+                Leapers("Boto", 5, 0.9f, 2.6f, 1.2f, 5f, 8f, 45f);
+                Swimmers("Tartaruga", 3, 1f, 0.35f, 0.08f, 6f, 30f);
+                Birds("Atoba", 3, 1.5f, true, 5f, 12f, 8f, 14f, 2.4f);
+                Birds("Fragata", 2, 1.6f, true, 14f, 22f, 12f, 18f, 1.2f);
                 break;
             case "Lencois":
                 Birds("Garca", 3, 1.3f, false, 5f, 11f, 8f, 13f, 2f);

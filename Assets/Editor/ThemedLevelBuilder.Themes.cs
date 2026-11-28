@@ -112,20 +112,20 @@ public static partial class ThemedLevelBuilder
             };
             case 5: return new Theme
             {
-                key = "Ilha", title = "Ilha Tropical",
-                atlas = new[] { "#6DB04A", "#9CCF5E", "#2E6A3E", "#3F8A48", "#7CC04E", "#8A6A4A", "#D9B07A", "#5E5A58", "#6E8A52", "#EBD7A2", "#7FC9B8", "#E8566A", "#F5EBD3", "#F7C94A", "#FFF6E8", "#3E7A3E" },
-                skyZenith = C("#2F86E2"), skyHorizon = C("#BFE2F0"), cloudCol = C("#FFFFFF"), cloudAmount = 0.5f,
-                sunCol = C("#FFF0D0"), sunElev = 55, sunYaw = 300, sunIntensity = 1.4f,
-                ambSky = C("#BFE0F2"), ambEq = C("#9FD0C0"), ambGround = C("#6E6450"),
-                fogCol = C("#BFE2F0"), fogStart = 90, fogEnd = 450,
-                terrain = TerrainMode.Ocean, waterCol = C("#1E9FB0"), waterAlpha = 0.72f,
+                key = "Noronha", title = "Fernando de Noronha",
+                atlas = new[] { "#7DAA4A", "#A6C760", "#2F5E38", "#4A7E40", "#86B24C", "#7A5E44", "#D2A878", "#4A4644", "#6E7A5A", "#E8C98A", "#5ED6CF", "#E8566A", "#F5EBD3", "#F7C94A", "#FFF6E8", "#4E7A3E" },
+                skyZenith = C("#2A82E4"), skyHorizon = C("#C4E6F2"), cloudCol = C("#FFFFFF"), cloudAmount = 0.4f,
+                sunCol = C("#FFF2D6"), sunElev = 50, sunYaw = 300, sunIntensity = 1.45f,
+                ambSky = C("#BFE2F2"), ambEq = C("#A6D8CC"), ambGround = C("#6E6450"),
+                fogCol = C("#C4E6F2"), fogStart = 110, fogEnd = 520,
+                terrain = TerrainMode.Ocean, waterCol = C("#22C2C6"), waterAlpha = 0.62f,
                 particles = ParticleMode.Sparkles, particleA = C("#FFFFFF"), particleB = C("#DFF6FF"), particleRate = 10f,
                 accent = C("#FFB84A"), glow = C("#FFB84A"),
-                exposure = 0.2f, contrast = 10f, saturation = 26f, temperature = 4f, tint = -2f, vignette = 0.18f, vignetteCol = C("#0A2430"),
-                trees = new[] { "palm", "broadleaf" }, treeWeights = new[] { 0.75f, 0.25f }, treeDensity = 0.45f, gorgeTree = "palm",
-                decor = new[] { ("tuft", 0.3f), ("flower", 0.03f), ("rock", 0.03f), ("bush", 0.04f) },
-                topDecor = new[] { "tuft", "flower", "rock" },
-                plateauTree = "palm", plateauTree2 = "palm",
+                exposure = 0.2f, contrast = 11f, saturation = 30f, temperature = 3f, tint = -2f, vignette = 0.16f, vignetteCol = C("#0A2430"),
+                trees = new[] { "broadleaf", "drytree", "palm" }, treeWeights = new[] { 0.5f, 0.35f, 0.15f }, treeDensity = 0.4f, gorgeTree = "broadleaf",
+                decor = new[] { ("tuft", 0.26f), ("bush", 0.06f), ("rock", 0.05f), ("flower", 0.02f) },
+                topDecor = new[] { "tuft", "bush", "rock" },
+                plateauTree = "broadleaf", plateauTree2 = "drytree",
             };
             case 6: return new Theme
             {

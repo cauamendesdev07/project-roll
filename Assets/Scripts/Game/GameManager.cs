@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
 
     public static readonly string[] LevelNames =
     {
-        "Amazônia", "Caatinga", "Cerrado", "Pantanal", "Ilha Tropical",
+        "Amazônia", "Caatinga", "Cerrado", "Pantanal", "Fernando de Noronha",
         "Lençóis Maranhenses", "Gruta de Cristais", "Pico Nevado", "Vulcão", "Acima das Nuvens",
     };
 

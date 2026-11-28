@@ -712,6 +712,7 @@ public static partial class ThemedLevelBuilder
         if (T.waterfall && hasGround) BuildCascade(env, cascadeMat, foamMat);
         if (T.terrain == TerrainMode.Cave) BuildCaveCeiling(env, x0, x1, z0, z1);
         if (T.key == "Vulcao") BuildVolcano(env, waterMat);
+        if (T.key == "Noronha") BuildNoronha(env);
         if (T.terrain == TerrainMode.None) BuildSkyIslands(x0, x1, z0, z1, infos);
         if (T.lightShafts) BuildShafts(env, shaftMat, sunDir);
         if (T.caveLights) BuildCaveCrystals(env);

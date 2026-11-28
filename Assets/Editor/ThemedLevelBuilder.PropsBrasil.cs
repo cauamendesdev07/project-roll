@@ -176,4 +176,69 @@ public static partial class ThemedLevelBuilder
         }
         Blob(mb, Vector3.up * 0.18f, new Vector3(0.1f, 0.14f, 0.1f), 0.1f, 0, n => UVr(R.MushCap, 4, 6));
     });
+
+    // ------------------------------------------------------------ Fernando de Noronha
+
+    // Centro e raio aproximados do percurso (para pôr marcos ao fundo).
+    static (Vector3 center, float radius) CourseBounds()
+    {
+        var b = new Bounds(Vector3.zero, Vector3.zero); bool first = true;
+        foreach (var t in Object.FindObjectsByType<Transform>(FindObjectsInactive.Include))
+        {
+            if (!t.name.StartsWith("Platform_") || t.GetComponent<Collider>() == null) continue;
+            if (first) { b = new Bounds(t.position, Vector3.zero); first = false; } else b.Encapsulate(t.position);
+        }
+        return (new Vector3(b.center.x, 0, b.center.z), Mathf.Max(b.extents.x, b.extents.z));
+    }
+
+    // Morro em anéis (perfil raio/altura), com cor por altura: mata embaixo, rocha em cima.
+    static void Mount(MB mb, Vector3 c, (float r, float y)[] prof, int sides, float greenUntil, float jitter = 0.1f)
+    {
+        var rings = new List<Vector3[]>();
+        float rot = Rf(0, 6.28f);
+        foreach (var (r, y) in prof)
+        {
+            var ring = new Vector3[sides];
+            for (int j = 0; j < sides; j++) { float a = rot + j * Mathf.PI * 2 / sides; float rr = r * Rf(1f - jitter, 1f + jitter); ring[j] = c + new Vector3(Mathf.Cos(a) * rr, y + Rf(-1f, 1f), Mathf.Sin(a) * rr); }
+            rings.Add(ring);
+        }
+        for (int i = 0; i < rings.Count - 1; i++)
+            for (int j = 0; j < sides; j++)
+            {
+                int k = (j + 1) % sides;
+                var a = rings[i][j]; var b = rings[i][k]; var cc = rings[i + 1][k]; var d = rings[i + 1][j];
+                var cen = (a + b + cc + d) * 0.25f;
+                var hint = cen - (c + Vector3.up * cen.y) + Vector3.up * 0.3f;
+                var uv = cen.y < greenUntil ? (Chance(0.15f) ? UVr(R.Rock, 1, 3) : UVr(R.PineMid, 2, 5)) : (Chance(0.25f) ? UVr(R.RockMoss, 2, 4) : UVr(R.Rock, 1, 4));
+                mb.Quad(a, b, cc, d, uv, hint);
+            }
+        var top = rings[rings.Count - 1];
+        var tc = Vector3.zero; foreach (var p in top) tc += p; tc /= top.Length;
+        Fan(mb, tc + Vector3.up * 1.5f, top, () => UVr(R.Rock, 2, 4), Vector3.up);
+    }
+
+    // Morro do Pico (torre de rocha alta) e Morro Dois Irmãos (dois morros arredondados no mar).
+    static void BuildNoronha(Transform env)
+    {
+        // a partir do início (o percurso desta fase é muito comprido): fica à vista da câmera inicial
+        var startT = GameObject.Find("Platform_Start").transform;
+        var center = new Vector3(startT.position.x, 0, startT.position.z);
+        float d = 190f;
+        float y0 = T.waterY - 6f;
+        var mb = new MB();
+        // Morro do Pico: à esquerda-frente do início
+        var pico = center + new Vector3(-0.47f, 0, 0.88f).normalized * d;
+        // base verde larga e uma torre de rocha íngreme por cima
+        Mount(mb, pico, new[] { (50f, y0), (40f, T.waterY + 4f), (29f, 10f), (20f, 20f), (13f, 27f), (12f, 40f), (11f, 52f), (9f, 63f), (6f, 71f), (2.5f, 75f) }, 16, 24f, 0.16f);
+        // Dois Irmãos: à direita
+        var irmaos = center + new Vector3(0.53f, 0, 0.85f).normalized * (d + 25f);
+        var side = new Vector3(0.85f, 0, -0.53f).normalized;
+        foreach (float s in new[] { -1f, 1f })
+        {
+            var c = irmaos + side * s * 24f;
+            float h = s < 0 ? 38f : 32f;
+            Mount(mb, c, new[] { (24f, y0), (22f, T.waterY + 3f), (19f, h * 0.45f), (14f, h * 0.75f), (8f, h * 0.93f), (3f, h) }, 12, h * 0.85f, 0.08f);
+        }
+        MeshObject("NoronhaLandmarks", env, Reg(mb.Build("NoronhaLandmarks")), atlasMat, Vector3.zero, Quaternion.identity, Vector3.one, true, true);
+    }
 }
