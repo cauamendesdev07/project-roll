@@ -211,7 +211,7 @@ public static partial class ThemedLevelBuilder
         tuftBase = T.tuftBase; tuftTip = T.tuftTip; bushAlt = T.bushAlt; canopyAlt = T.canopyAlt;
         rng = new Random(1234 + (level - 1) * 7919);
         meshAssets.Clear(); groups.Clear(); props.Clear(); buildingCache.Clear();
-        pillarBottom = T.terrain == TerrainMode.Ocean ? -17.5f : -13.9f;
+        pillarBottom = T.terrain == TerrainMode.Ocean || T.terrain == TerrainMode.Coast ? -17.5f : -13.9f;
         var log = new System.Text.StringBuilder($"Level_{level:00} ({T.title}): ");
 
         string dir = $"{ArtRoot}/{T.key}";
@@ -461,6 +461,12 @@ public static partial class ThemedLevelBuilder
 
         float minX = plats.Min(t => t.position.x - t.lossyScale.x * 0.5f) - 95f, maxX = plats.Max(t => t.position.x + t.lossyScale.x * 0.5f) + 95f;
         float minZ = plats.Min(t => t.position.z - t.lossyScale.z * 0.5f) - 95f, maxZ = plats.Max(t => t.position.z + t.lossyScale.z * 0.5f) + 95f;
+        if (T.terrain == TerrainMode.Coast)
+        {
+            // a terra fica do lado +x: praia a 24 m da borda das plataformas, cidade e morros além
+            coastShore = plats.Max(t => t.position.x + t.lossyScale.x * 0.5f) + 24f;
+            maxX = coastShore + CoastCityEnd + 90f;
+        }
         cell = (maxX - minX) * (maxZ - minZ) > 150000f ? 4f : 3f;
         gx0 = Mathf.Floor(minX / cell) * cell; gz0 = Mathf.Floor(minZ / cell) * cell;
         gnx = Mathf.CeilToInt((maxX - gx0) / cell); gnz = Mathf.CeilToInt((maxZ - gz0) / cell);
@@ -634,6 +640,7 @@ public static partial class ThemedLevelBuilder
                     {
                         case TerrainMode.Wetland: ok = d > 5f && d < 70f && h > T.waterY + 0.25f; break;
                         case TerrainMode.Ocean: ok = d > 12f && d < 90f && h > T.waterY + 1.4f; break;
+                        case TerrainMode.Coast: ok = h > T.waterY + 3.5f && d < 260f; break;   // árvores só nos morros
                         case TerrainMode.Dunes: ok = d > 10f && d < 70f && h > T.waterY + 0.6f; break;
                         case TerrainMode.Cave: ok = d > 13.5f && d < 34f; break;
                         default: ok = d > 13.5f && d < 65f; break;
@@ -703,6 +710,7 @@ public static partial class ThemedLevelBuilder
                     float h = MeshH(px, pz);
                     if (T.water != WaterMode.None && h < T.waterY + 0.25f) continue;
                     if (T.terrain == TerrainMode.Cave && h > 8f) continue;
+                    if (T.terrain == TerrainMode.Coast) continue;   // praia e cidade limpas (BuildRio cuida dos detalhes)
                     var nrm = MeshNormal(px, pz);
                     if (nrm.y < 0.7f) continue;
                     bool rim = d > 11.5f;

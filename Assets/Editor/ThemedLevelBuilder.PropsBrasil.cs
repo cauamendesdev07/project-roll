@@ -472,29 +472,101 @@ public static partial class ThemedLevelBuilder
         Blob(mb, b + new Vector3(0, 26.8f, 0), new Vector3(1.2f, 1.5f, 1.3f), 0f, 1, n => stone); // cabeça
     }
 
-    // Corcovado com o Cristo e Pão de Açúcar (com o morro da Urca e o bondinho), ao fundo.
+    // Guarda-sol de praia: haste e copa colorida.
+    static MB Umbrella(R color) => WithSeed(300 + (int)color, mb =>
+    {
+        mb.Quad(new Vector3(-0.04f, -0.2f, 0), new Vector3(0.04f, -0.2f, 0), new Vector3(0.04f, 2.2f, 0), new Vector3(-0.04f, 2.2f, 0), UV(R.Cream, 6), Vector3.forward);
+        mb.Quad(new Vector3(0.04f, -0.2f, 0), new Vector3(-0.04f, -0.2f, 0), new Vector3(-0.04f, 2.2f, 0), new Vector3(0.04f, 2.2f, 0), UV(R.Cream, 6), Vector3.back);
+        var ring = new Vector3[8];
+        for (int k = 0; k < 8; k++) { float a = k * Mathf.PI * 2 / 8; ring[k] = new Vector3(Mathf.Cos(a) * 1.3f, 1.85f, Mathf.Sin(a) * 1.3f); }
+        Fan(mb, Vector3.up * 2.35f, ring, () => UV(color, Ri(4, 6)), Vector3.up);
+        Fan(mb, Vector3.up * 2.3f, ring, () => UV(color, 3), Vector3.down);
+    });
+
+    // Rio: orla (praia com guarda-sóis e palmeiras, calçadão de ondas pretas e brancas, avenida),
+    // cidade de prédios claros, morros com casinhas, Corcovado com o Cristo e Pão de Açúcar com a Urca.
     static void BuildRio(Transform env)
     {
-        var a0 = mainPath[0]; var a1 = mainPath[mainPath.Count - 1];
-        var c2 = (a0 + a1) * 0.5f; var dir2 = (a1 - a0).normalized; var side2 = new Vector2(-dir2.y, dir2.x);
-        Vector3 At(float fwd, float side) { var p = c2 + dir2 * fwd + side2 * side; return new Vector3(p.x, 0, p.y); }
-        float y0 = T.waterY - 6f;
+        float w = T.waterY;
+        float flat = w + CoastFlat;
+        float zMin = float.MaxValue, zMax = float.MinValue;
+        foreach (var p in mainPath) { zMin = Mathf.Min(zMin, p.y); zMax = Mathf.Max(zMax, p.y); }
+        float z0 = zMin - 80f, z1 = zMax + 80f;
+        var orla = new MB();
+
+        // calçadão de Copacabana (u 14–20) em células, com faixas onduladas paralelas à praia
+        const float cellZ = 0.8f, cellU = 0.75f;
+        for (float z = z0; z < z1; z += cellZ)
+            for (float u = CoastBeach; u < CoastBeach + 6f; u += cellU)
+            {
+                float zc = z + cellZ * 0.5f, uc = u + cellU * 0.5f;
+                int stripe = Mathf.FloorToInt((uc - CoastBeach) * 0.9f + Mathf.Sin(zc * 0.55f) * 1.1f + 10f);
+                var uv = stripe % 2 == 0 ? UV(R.FlowerWhite, 6) : UV(R.Bark, 0);
+                float xa = CoastShoreX(z) + u, xb = CoastShoreX(z + cellZ) + u;
+                orla.Quad(new Vector3(xa, flat + 0.04f, z), new Vector3(xb, flat + 0.04f, z + cellZ), new Vector3(xb + cellU, flat + 0.04f, z + cellZ), new Vector3(xa + cellU, flat + 0.04f, z), uv, Vector3.up);
+            }
+        // avenida (u 20–30) com faixa tracejada, e calçada (u 30–33)
+        for (float z = z0; z < z1; z += 4f)
+        {
+            float xa = CoastShoreX(z), xb = CoastShoreX(z + 4f);
+            Vector3 P(float x, float u, float zz) => new Vector3(x + u, flat + 0.05f, zz);
+            orla.Quad(P(xa, 20f, z), P(xb, 20f, z + 4f), P(xb, 30f, z + 4f), P(xa, 30f, z), UV(R.Bark, 1), Vector3.up);
+            orla.Quad(P(xa, 30f, z), P(xb, 30f, z + 4f), P(xb, 33f, z + 4f), P(xa, 33f, z), UV(R.Rock, 5), Vector3.up);
+            if (Mathf.FloorToInt(z / 4f) % 2 == 0)
+                orla.Quad(P(xa, 24.9f, z) + Vector3.up * 0.01f, P(xb, 24.9f, z + 2.5f) + Vector3.up * 0.01f, P(xb, 25.1f, z + 2.5f) + Vector3.up * 0.01f, P(xa, 25.1f, z) + Vector3.up * 0.01f, UV(R.FlowerWhite, 6), Vector3.up);
+        }
+        MeshObject("Orla", env, Reg(orla.Build("Orla")), atlasMat, Vector3.zero, Quaternion.identity, Vector3.one, true, false);
+
+        // palmeiras na beira do calçadão e guarda-sóis na areia
+        R[] umbrellaColors = { R.MushCap, R.FlowerYellow, R.RiverBed, R.Cream, R.Fern };
+        var umbrellas = new Mesh[umbrellaColors.Length];
+        for (int k = 0; k < umbrellas.Length; k++) umbrellas[k] = Reg(Umbrella(umbrellaColors[k]).Build($"Umbrella_{k}"));
+        for (float z = z0; z < z1; z += Rf(8f, 11f))
+        {
+            float x = CoastShoreX(z) + CoastBeach - 1f;
+            AddInst(PickMesh("palm"), PropMat("palm"), true, new Vector3(x, MeshH(x, z) - 0.2f, z), Quaternion.Euler(0, Rf(0, 360), 0), Rf(0.8f, 1.1f));
+        }
+        for (float z = z0; z < z1; z += Rf(3f, 7f))
+        {
+            if (!Chance(0.7f)) continue;
+            float x = CoastShoreX(z) + Rf(4f, 11f);
+            AddInst(umbrellas[Ri(0, umbrellas.Length - 1)], atlasMat, false, new Vector3(x, MeshH(x, z) - 0.1f, z), Quaternion.Euler(Rf(-6, 6), Rf(0, 360), Rf(-6, 6)), Rf(0.9f, 1.1f));
+        }
+
+        // cidade: quarteirões de prédios claros, de frente para o mar (sem janelas acesas: é dia)
+        var shells = Prop("building");
+        for (float u = 37f; u < CoastCityEnd - 6f; u += Rf(13f, 16f))
+            for (float z = z0 + 10f; z < z1 - 10f; z += Rf(12f, 16f))
+            {
+                if (!Chance(0.85f)) continue;
+                float x = CoastShoreX(z) + u;
+                AddInst(shells[Ri(0, shells.Length - 1)], atlasMat, u < 60f, new Vector3(x, flat - 0.2f, z), Quaternion.Euler(0, Ri(0, 3) * 90f, 0), Rf(0.5f, 0.95f) * (u < 50f ? 1.1f : 1f));
+            }
+
+        // casinhas nos morros
+        for (int k = 0; k < 220; k++)
+        {
+            float z = Rf(z0, z1), u = Rf(CoastCityEnd + 4f, CoastCityEnd + 60f);
+            float x = CoastShoreX(z) + u, h = MeshH(x, z);
+            if (MeshNormal(x, z).y < 0.75f || h < flat + 1f) continue;
+            AddInst(PickMesh("house"), atlasMat, false, new Vector3(x, h - 0.3f, z), Quaternion.Euler(0, Ri(0, 3) * 90f + Rf(-8, 8), 0), Rf(0.9f, 1.3f));
+        }
+
+        float y0 = w - 6f;
         var mb = new MB();
+        // Corcovado: pico verde atrás da cidade, com o Cristo no alto
+        float zc2 = (zMin + zMax) * 0.5f + 40f;
+        var corc = new Vector3(CoastShoreX(zc2) + CoastCityEnd + 75f, 0f, zc2);
+        Mount(mb, corc, new[] { (70f, y0), (60f, flat + 6f), (44f, 34f), (30f, 64f), (19f, 92f), (11f, 108f), (6f, 116f) }, 16, 100f, 0.12f);
+        Christ(mb, corc + Vector3.up * 115f);
 
-        // Corcovado: pico íngreme e coberto de mata, com o Cristo no alto
-        var corc = At(260f, -110f);
-        Mount(mb, corc, new[] { (80f, y0), (66f, T.waterY + 6f), (48f, 30f), (32f, 60f), (20f, 88f), (12f, 104f), (7f, 112f) }, 16, 96f, 0.12f);
-        Christ(mb, corc + Vector3.up * 111f);
-
-        // Pão de Açúcar e Urca: domos arredondados no mar
-        var pao = At(210f, 150f);
-        Mount(mb, pao, new[] { (32f, y0), (31f, T.waterY + 3f), (29f, 30f), (25f, 58f), (19f, 80f), (12f, 94f), (5f, 101f), (1.5f, 103f) }, 16, 22f, 0.05f);
-        var urca = pao + new Vector3(side2.x, 0, side2.y) * -70f + new Vector3(dir2.x, 0, dir2.y) * -30f;
-        Mount(mb, urca, new[] { (34f, y0), (32f, T.waterY + 3f), (28f, 18f), (20f, 34f), (10f, 43f), (3f, 46f) }, 14, 38f, 0.06f);
-
-        // bondinho: cabo e uma cabine no meio
+        // Pão de Açúcar e Urca: na ponta da praia, dentro do mar, além da chegada
+        var pao = new Vector3(CoastShoreX(zMax + 110f) - 24f, 0f, zMax + 110f);
+        Mount(mb, pao, new[] { (32f, y0), (31f, w + 3f), (29f, 30f), (25f, 58f), (19f, 80f), (12f, 94f), (5f, 101f), (1.5f, 103f) }, 16, 22f, 0.05f);
+        var urca = pao + new Vector3(30f, 0f, -55f);
+        Mount(mb, urca, new[] { (34f, y0), (32f, w + 3f), (28f, 18f), (20f, 34f), (10f, 43f), (3f, 46f) }, 14, 38f, 0.06f);
         var topPao = pao + Vector3.up * 102f; var topUrca = urca + Vector3.up * 46f;
-        var cable = (topPao - topUrca); var n = Vector3.Cross(cable.normalized, Vector3.up).normalized * 0.12f;
+        var n = Vector3.Cross((topPao - topUrca).normalized, Vector3.up).normalized * 0.12f;
         mb.Quad(topUrca - n, topPao - n, topPao + n, topUrca + n, UV(R.Bark, 1), Vector3.up);
         mb.Quad(topUrca + n, topPao + n, topPao - n, topUrca - n, UV(R.Bark, 1), Vector3.down);
         BoxMB(mb, Vector3.Lerp(topUrca, topPao, 0.45f) + Vector3.down * 2.2f, new Vector3(2.4f, 2.6f, 2.4f), UV(R.MushCap, 4));

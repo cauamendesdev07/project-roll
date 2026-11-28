@@ -5,7 +5,13 @@ using UnityEngine;
 // Perto do caminho o chão fica sempre abaixo de y = -7,5 (o FallDetector manda a bola de volta antes).
 public static partial class ThemedLevelBuilder
 {
-    enum TerrainMode { Gorge, Cave, Wetland, Ocean, Dunes, None }
+    enum TerrainMode { Gorge, Cave, Wetland, Ocean, Dunes, None, Coast }
+
+    // Costa (Rio): mar sob o percurso e terra do lado +x a partir da linha da praia.
+    static float coastShore;
+    static float CoastShoreX(float z) => coastShore + (Mathf.PerlinNoise(z * 0.018f + 5f, 0.5f) - 0.5f) * 10f;
+    // perfil a partir da praia (u = distância para dentro da terra)
+    const float CoastBeach = 14f, CoastCityEnd = 100f, CoastFlat = 3.3f;   // cidade 3,3 m acima do mar inicial
 
     struct Edge { public Vector2 a, b; public float wa, wb; }
     static readonly List<Edge> edges = new List<Edge>();
@@ -82,6 +88,19 @@ public static partial class ThemedLevelBuilder
             }
             case TerrainMode.None:
                 return -60f;
+            case TerrainMode.Coast:
+            {
+                float w = T.waterY;
+                float u = x - CoastShoreX(z);
+                float sea = -16.5f + n1 * 2f + n2 * 0.6f;
+                if (d < 9f) sea = Mathf.Min(sea, -14.5f + n2);
+                if (u < -14f) return sea;
+                if (u < 0f) return Mathf.Lerp(sea, w - 0.5f, Smooth((u + 14f) / 14f));                 // fundo subindo até a praia
+                if (u < CoastBeach) return w - 0.5f + (u / CoastBeach) * 3.5f + n2 * 0.08f;            // areia
+                if (u < CoastCityEnd) return w + CoastFlat;                                            // calçadão, avenida e cidade
+                float hill = Mathf.PerlinNoise(x * 0.018f + 3f, z * 0.018f + 8f);
+                return w + CoastFlat + Smooth((u - CoastCityEnd) / 45f) * (14f + hill * 48f) + n2 * 1.5f * Smooth((u - CoastCityEnd) / 20f);   // morros
+            }
         }
 
         // Gorge / Cave
@@ -148,6 +167,13 @@ public static partial class ThemedLevelBuilder
                 if (hc < w - 1.5f) uv = Chance(0.2f) ? UVr(R.Rock, 1, 3) : UVr(R.RiverBed, 1, 5);
                 else if (hc < w + 1.1f) uv = UVr(R.Dirt, 3, 6);                 // praia
                 else if (n.y < 0.62f) uv = UVr(R.Rock, 1, 5);
+                else uv = Chance(0.15f) ? UVr(R.GrassLight, 2, 5) : UVr(R.GrassTop, 1, 5);
+                break;
+            case TerrainMode.Coast:
+                if (hc < w - 1.5f) uv = Chance(0.2f) ? UVr(R.Rock, 1, 3) : UVr(R.RiverBed, 1, 5);
+                else if (hc < w + 3.1f) uv = UVr(R.Dirt, 4, 6);                                  // praia
+                else if (hc < w + 3.7f) uv = UVr(R.Rock, 3, 4);                                  // chão da cidade
+                else if (n.y < 0.62f) uv = UVr(R.Rock, 1, 4);
                 else uv = Chance(0.15f) ? UVr(R.GrassLight, 2, 5) : UVr(R.GrassTop, 1, 5);
                 break;
             case TerrainMode.Dunes:
