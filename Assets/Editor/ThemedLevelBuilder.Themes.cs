@@ -29,7 +29,7 @@ public static partial class ThemedLevelBuilder
         public (string kind, float p)[] decor;
         public string[] topDecor = { "tuft", "flower", "mushroom", "rock" };
         public string plateauTree = "pine", plateauTree2 = "broadleaf";
-        public Color hazardCol; public bool hazardIsCloud;
+        public Color hazardCol; public bool hazardIsCloud, hazardWater;
         public R tuftBase = R.GrassTop, tuftTip = R.GrassLight, bushAlt = R.GrassTop, canopyAlt = R.GrassTop;
         public bool caveLights, neutralTonemap;
         public Color waterGlow = Color.black;   // emissão da água (lago luminoso)
@@ -185,21 +185,21 @@ public static partial class ThemedLevelBuilder
             };
             case 9: return new Theme
             {
-                key = "Vulcao", title = "Vulcão",
-                atlas = new[] { "#4A4440", "#625A54", "#2A2624", "#3A3430", "#5A4A3A", "#3A2C26", "#6A4A34", "#3A3634", "#7A4030", "#4A2A22", "#1A1414", "#FF7A2A", "#8A7A70", "#FFB02A", "#C8B8A8", "#3A2E2A" },
-                skyZenith = C("#2A1A22"), skyHorizon = C("#C2552E"), cloudCol = C("#5A3A3A"), cloudAmount = 0.8f,
-                sunCol = C("#FFA06A"), sunElev = 26, sunYaw = 300, sunIntensity = 1.6f,
-                ambSky = C("#8A5048"), ambEq = C("#6A4034"), ambGround = C("#3A1E14"),
-                fogCol = C("#7A4232"), fogStart = 45, fogEnd = 230,
-                water = WaterMode.Lava, waterCol = C("#FF5A1A"), woodStumps = false,
-                particles = ParticleMode.Embers, particleA = C("#FFB04A"), particleB = C("#FF5A1A"), particleRate = 30f,
-                accent = C("#FF8A2A"), glow = C("#FF7A2A"),
-                exposure = 0.2f, contrast = 18f, saturation = 45f, temperature = 4f, tint = 0f, bloom = 0.45f, neutralTonemap = true, vignette = 0.28f, vignetteCol = C("#100404"),
-                trees = new[] { "drybare", "basalt" }, treeWeights = new[] { 0.5f, 0.5f }, treeDensity = 0.4f, gorgeTree = "basalt",
-                decor = new[] { ("rock", 0.06f), ("basaltsmall", 0.02f) },
-                topDecor = new[] { "rock" },
-                plateauTree = "drybare", plateauTree2 = "basalt",
-                hazardCol = C("#FF5414"), tuftBase = R.Fern, tuftTip = R.LeafLight,
+                key = "SaoPaulo", title = "São Paulo",
+                atlas = new[] { "#8C8A84", "#A4A29A", "#2E4A36", "#3E6040", "#5E7E44", "#3A3632", "#B07A5A", "#7C7C78", "#9A968C", "#C8B48E", "#4A5C70", "#C23A32", "#E2DCCC", "#E8B830", "#F2F0EA", "#5A6A4A" },
+                skyZenith = C("#8496AA"), skyHorizon = C("#C9B89C"), cloudCol = C("#C8C0B4"), cloudAmount = 0.7f,
+                sunCol = C("#FFD9A8"), sunElev = 30, sunYaw = 300, sunIntensity = 1.3f,
+                ambSky = C("#A8B0BC"), ambEq = C("#9A9488"), ambGround = C("#4A4640"),
+                fogCol = C("#A69C8A"), fogStart = 25, fogEnd = 210,
+                waterCol = C("#5A4E38"), waterAlpha = 0.9f, woodStumps = false,
+                particles = ParticleMode.Dust, particleA = C("#9A948A"), particleB = C("#7A746A"), particleRate = 22f,
+                accent = C("#FFB04A"), glow = C("#FFB04A"),
+                exposure = 0.1f, contrast = 12f, saturation = -8f, temperature = 4f, tint = 0f, bloom = 0.35f, vignette = 0.26f, vignetteCol = C("#1A1814"),
+                trees = new[] { "building", "bush" }, treeWeights = new[] { 0.85f, 0.15f }, treeDensity = 0.5f, gorgeTree = "lamp",
+                decor = new[] { ("tuft", 0.06f), ("bush", 0.02f), ("rock", 0.01f), ("lamp", 0.008f) },
+                topDecor = new[] { "tuft", "rooftop" },
+                plateauTree = "lamp", plateauTree2 = "bush",
+                hazardCol = C("#6A5A40"), hazardWater = true, tuftBase = R.Fern, tuftTip = R.LeafLight,
             };
             default: return new Theme
             {

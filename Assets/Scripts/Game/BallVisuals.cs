@@ -20,7 +20,7 @@ public class BallVisuals : MonoBehaviour
         new Color(0.98f, 0.96f, 0.91f), // Lençóis
         new Color(0.55f, 0.60f, 0.70f), // Gruta do Lago Azul
         new Color(0.95f, 0.97f, 1.00f), // Urupema (geada)
-        new Color(0.32f, 0.29f, 0.28f), // Vulcão
+        new Color(0.32f, 0.29f, 0.28f), // São Paulo (poeira de asfalto)
         new Color(0.95f, 0.96f, 1.00f), // Céu
     };
 

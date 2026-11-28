@@ -184,6 +184,36 @@ public static partial class AudioSynth
             NormalizePeak(o, 0.9f);
             Save("Sfx/thunder", o, r2);
         }
+
+        // ---- sons adicionados depois (no fim, para não mudar a sequência aleatória dos anteriores)
+        // Avião passando baixo: ronco de turbina que cresce, passa e some (com o assobio caindo).
+        {
+            int n = (int)(4.5f * R);
+            var o = new float[n];
+            var band = new Svf(); var low = new Svf();
+            float ph = 0f;
+            for (int i = 0; i < n; i++)
+            {
+                float t = i / (float)R;
+                float k = t / 4.5f;
+                float env = Mathf.Pow(Mathf.Sin(Mathf.PI * Mathf.Clamp01(k)), 2.2f);
+                band.Process(Noise(), Mathf.Lerp(1600f, 700f, k), 0.9f, R);
+                low.Process(Noise(), 220f, 0.7f, R);
+                ph += Mathf.Lerp(3200f, 1900f, k) / R;
+                o[i] = (band.Bp * 0.8f + low.Lp * 1.2f + Mathf.Sin(Tau * ph) * 0.05f) * env;
+            }
+            Finish(o, "Sfx/plane", R, 0.85f);
+        }
+
+        // Bala perdida: zunido agudo rápido com um estalo no começo.
+        {
+            var o = Sweep(R, 0.4f, t => 3400f - 2200f * t / 0.4f, t => Hump(t, 0.4f) * 0.6f);
+            Mix(o, Click(R, 2500f, 0.012f), 0, 0.9f, false);
+            var f = new Svf();
+            for (int i = 0; i < o.Length; i++) { float t = i / (float)R; f.Process(Noise(), 5000f, 1.2f, R); o[i] += f.Bp * Hump(t, 0.4f) * 0.4f; }
+            Finish(o, "Sfx/whizz", R, 0.8f);
+        }
+
     }
 
     private static float[] Click(int rate, float freq, float dur)

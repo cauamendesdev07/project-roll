@@ -233,6 +233,191 @@ public static partial class ThemedLevelBuilder
         }
     });
 
+    // ------------------------------------------------------------ São Paulo
+
+    // Caixa alinhada aos eixos (6 faces).
+    static void BoxMB(MB mb, Vector3 c, Vector3 size, Vector2 uv, Vector2? topUv = null)
+    {
+        var h = size * 0.5f;
+        Vector3 P(float x, float y, float z) => c + new Vector3(x * h.x, y * h.y, z * h.z);
+        mb.Quad(P(-1, -1, 1), P(1, -1, 1), P(1, 1, 1), P(-1, 1, 1), uv, Vector3.forward);
+        mb.Quad(P(1, -1, -1), P(-1, -1, -1), P(-1, 1, -1), P(1, 1, -1), uv, Vector3.back);
+        mb.Quad(P(1, -1, 1), P(1, -1, -1), P(1, 1, -1), P(1, 1, 1), uv, Vector3.right);
+        mb.Quad(P(-1, -1, -1), P(-1, -1, 1), P(-1, 1, 1), P(-1, 1, -1), uv, Vector3.left);
+        mb.Quad(P(-1, 1, 1), P(1, 1, 1), P(1, 1, -1), P(-1, 1, -1), topUv ?? uv, Vector3.up);
+        mb.Quad(P(-1, -1, -1), P(1, -1, -1), P(1, -1, 1), P(-1, -1, 1), uv, Vector3.down);
+    }
+
+    // Prédio: caixa em faixas de andar (janela escura / parede), às vezes com recuo no alto,
+    // caixa d'água e antena. A base desce bastante para não flutuar em encostas.
+    static MB Building(float H, int seed) => WithSeed(seed, mb =>
+    {
+        float w = Rf(7f, 13f), d = Rf(7f, 13f), h = H * Rf(0.55f, 1.35f);
+        R[] walls = { R.Cream, R.Rock, R.RockMoss, R.Dirt, R.WoodRing };
+        R wall = walls[Ri(0, walls.Length - 1)];
+        float floor = 3.2f;
+        void Box(float x0, float z0, float x1, float z1, float y0, float y1, bool windows)
+        {
+            var c = new[] { new Vector3(x0, 0, z0), new Vector3(x1, 0, z0), new Vector3(x1, 0, z1), new Vector3(x0, 0, z1) };
+            for (int f = 0; f < 4; f++)
+            {
+                var a = c[f]; var b = c[(f + 1) % 4];
+                var outward = Vector3.Cross(b - a, Vector3.up).normalized * -1f;
+                float y = y0;
+                int band = 0;
+                while (y < y1 - 0.01f)
+                {
+                    float hb = band == 0 && y == y0 ? Mathf.Min(y1 - y, Mathf.Max(floor, 6f)) : Mathf.Min(y1 - y, band % 2 == 0 ? 1.6f : 3.2f);   // faixas altas: metade da geometria
+                    bool win = windows && band % 2 == 1;
+                    var uv = win ? UV(R.RiverBed, Ri(3, 6)) : UV(wall, Ri(3, 5));
+                    mb.Quad(a + Vector3.up * y, b + Vector3.up * y, b + Vector3.up * (y + hb), a + Vector3.up * (y + hb), uv, outward);
+                    y += hb; band++;
+                }
+            }
+            Fan(mb, new Vector3((x0 + x1) * 0.5f, y1, (z0 + z1) * 0.5f), new[] { c[0] + Vector3.up * y1, c[1] + Vector3.up * y1, c[2] + Vector3.up * y1, c[3] + Vector3.up * y1 }, () => UV(R.Rock, 2), Vector3.up);
+        }
+        float hw = w * 0.5f, hd = d * 0.5f;
+        bool setback = Chance(0.45f) && h > 24f;
+        float mainTop = setback ? h * Rf(0.65f, 0.8f) : h;
+        Box(-hw, -hd, hw, hd, -8f, mainTop, true);
+        if (setback) Box(-hw * 0.7f, -hd * 0.7f, hw * 0.7f, hd * 0.7f, mainTop, h, true);
+        float top = h;
+        if (Chance(0.7f))
+        {
+            float tx = Rf(-hw * 0.4f, hw * 0.4f), tz = Rf(-hd * 0.4f, hd * 0.4f);
+            Box(tx - 1.2f, tz - 1.2f, tx + 1.2f, tz + 1.2f, top, top + 2.2f, false);
+        }
+        if (Chance(0.35f))
+        {
+            var rings = Prism(new Vector3(0, top, 0), 4, new[] { (0f, 0.15f), (h * 0.18f, 0.05f) }, 0.4f, 0f, 0f);
+            Loft(mb, rings, (i, j, n) => UV(R.Cream, 6), Vector3.up * top, Vector3.up * (top + 1));
+        }
+    });
+
+    // Poste de rua.
+    static MB Lamp(int seed) => WithSeed(seed, mb =>
+    {
+        var rings = Prism(Vector3.zero, 5, new[] { (-0.3f, 0.09f), (5.5f, 0.06f) }, 0f, 0f, 0f);
+        Loft(mb, rings, (i, j, n) => UV(R.Rock, 2), Vector3.zero, Vector3.up);
+        mb.Quad(new Vector3(0, 5.4f, -0.05f), new Vector3(1.4f, 5.6f, -0.05f), new Vector3(1.4f, 5.7f, -0.05f), new Vector3(0, 5.5f, -0.05f), UV(R.Rock, 2), Vector3.back);
+        Blob(mb, new Vector3(1.45f, 5.55f, 0), new Vector3(0.35f, 0.12f, 0.2f), 0f, 0, n => n.y < 0 ? UV(R.Cream, 7) : UV(R.Rock, 2));
+    });
+
+    // Coisas de laje: aparelho de ar e caixa d'água.
+    static MB Rooftop(int seed) => WithSeed(seed, mb =>
+    {
+        BoxMB(mb, new Vector3(Rf(-0.3f, 0.3f), 0.3f, 0), new Vector3(1f, 0.7f, 0.8f), UVr(R.Cream, 4, 6));
+        if (Chance(0.6f))
+        {
+            var rings = Prism(new Vector3(0.9f, 0, 0.3f), 8, new[] { (-0.1f, 0.45f), (0.9f, 0.45f) }, 0f, 0f, 0f);
+            Loft(mb, rings, (i, j, n) => UV(R.RiverBed, 5), Vector3.zero, Vector3.up);
+            Fan(mb, new Vector3(0.9f, 0.95f, 0.3f), rings[1], () => UV(R.RiverBed, 6), Vector3.up);
+        }
+    });
+
+    // Carro (comprimento em z). Cor pela paleta.
+    static MB Car(R color) => WithSeed(77 + (int)color, mb =>
+    {
+        BoxMB(mb, new Vector3(0, 0.6f, 0), new Vector3(1.8f, 0.6f, 4.2f), UV(color, 4), UV(color, 5));
+        BoxMB(mb, new Vector3(0, 1.12f, -0.2f), new Vector3(1.55f, 0.5f, 2.2f), UV(R.RiverBed, 5), UV(color, 5));
+        foreach (var (x, z) in new[] { (-0.85f, 1.3f), (0.85f, 1.3f), (-0.85f, -1.3f), (0.85f, -1.3f) })
+            BoxMB(mb, new Vector3(x, 0.32f, z), new Vector3(0.25f, 0.64f, 0.64f), UV(R.Bark, 0));
+    });
+
+    // Viadutos com trânsito acompanhando o caminho pelos lados (no corredor sem prédios),
+    // elevados acima do terreno.
+    static void BuildSaoPaulo(Transform env)
+    {
+        var root = Child(env, "Traffic");
+        var deck = new MB();
+        var carMeshes = new[] { Reg(Car(R.Cream).Build("Car_0")), Reg(Car(R.MushCap).Build("Car_1")), Reg(Car(R.Rock).Build("Car_2")), Reg(Car(R.FlowerYellow).Build("Car_3")), Reg(Car(R.Bark).Build("Car_4")) };
+
+        // caminho reamostrado a cada ~10 m
+        var path = new List<Vector2>();
+        for (int i = 0; i < mainPath.Count - 1; i++)
+        {
+            var a = mainPath[i]; var b = mainPath[i + 1];
+            int steps = Mathf.Max(1, Mathf.CeilToInt((b - a).magnitude / 10f));
+            for (int k = 0; k < steps; k++) path.Add(Vector2.Lerp(a, b, k / (float)steps));
+        }
+        path.Add(mainPath[mainPath.Count - 1]);
+        // estica um pouco antes do início e depois do fim
+        var d0 = (path[1] - path[0]).normalized; var d1 = (path[path.Count - 1] - path[path.Count - 2]).normalized;
+        path.Insert(0, path[0] - d0 * 40f); path.Add(path[path.Count - 1] + d1 * 40f);
+
+        int lanes = 0;
+        foreach (float sideSign in new[] { -1f, 1f })
+        {
+            // linha central do viaduto, deslocada para o lado e suavizada
+            var line = new List<Vector2>();
+            for (int i = 0; i < path.Count; i++)
+            {
+                var dir = (path[Mathf.Min(i + 1, path.Count - 1)] - path[Mathf.Max(i - 1, 0)]).normalized;
+                line.Add(path[i] + new Vector2(-dir.y, dir.x) * sideSign * 17f);
+            }
+            for (int pass = 0; pass < 2; pass++)
+                for (int i = 1; i < line.Count - 1; i++) line[i] = (line[i - 1] + line[i] * 2f + line[i + 1]) * 0.25f;
+            var ys = new float[line.Count];
+            for (int i = 0; i < line.Count; i++) ys[i] = Mathf.Max(2f, MeshH(line[i].x, line[i].y) + 1.5f);
+            for (int pass = 0; pass < 3; pass++)
+                for (int i = 1; i < ys.Length - 1; i++) ys[i] = Mathf.Max(ys[i], (ys[i - 1] + ys[i + 1]) * 0.5f);
+
+            var left = new List<Vector3>(); var right = new List<Vector3>();
+            var laneA = new List<Vector3>(); var laneB = new List<Vector3>();
+            for (int i = 0; i < line.Count; i++)
+            {
+                var dir = (line[Mathf.Min(i + 1, line.Count - 1)] - line[Mathf.Max(i - 1, 0)]).normalized;
+                var n = new Vector3(-dir.y, 0, dir.x);
+                var c = new Vector3(line[i].x, ys[i], line[i].y);
+                left.Add(c - n * 5f); right.Add(c + n * 5f);
+                laneA.Add(c - n * 2.4f + Vector3.up * 0.02f); laneB.Add(c + n * 2.4f + Vector3.up * 0.02f);
+            }
+            for (int i = 0; i < line.Count - 1; i++)
+            {
+                deck.Quad(left[i], left[i + 1], right[i + 1], right[i], UV(R.Rock, 2), Vector3.up);
+                var down = Vector3.down * 0.8f;
+                deck.Quad(left[i] + down, right[i] + down, right[i + 1] + down, left[i + 1] + down, UV(R.Rock, 1), Vector3.down);
+                var nl = Vector3.Cross(Vector3.up, left[i + 1] - left[i]).normalized;
+                deck.Quad(left[i] + down, left[i + 1] + down, left[i + 1] + Vector3.up * 0.5f, left[i] + Vector3.up * 0.5f, UV(R.Cream, 3), nl);
+                deck.Quad(right[i] + down, right[i + 1] + down, right[i + 1] + Vector3.up * 0.5f, right[i] + Vector3.up * 0.5f, UV(R.Cream, 3), -nl);
+                // faixa tracejada no meio
+                var m0 = (left[i] + right[i]) * 0.5f + Vector3.up * 0.03f; var m1 = Vector3.Lerp(m0, (left[i + 1] + right[i + 1]) * 0.5f + Vector3.up * 0.03f, 0.4f);
+                var w = (right[i] - left[i]).normalized * 0.12f;
+                deck.Quad(m0 - w, m1 - w, m1 + w, m0 + w, UV(R.FlowerWhite, 6), Vector3.up);
+                // pilar a cada dois trechos
+                if (i % 2 == 0)
+                {
+                    var c = (left[i] + right[i]) * 0.5f;
+                    float ground = MeshH(c.x, c.z);
+                    if (ground < c.y - 1.5f)
+                    {
+                        var rings = Prism(new Vector3(c.x, ground - 1f, c.z), 6, new[] { (0f, 1.0f), (c.y - ground, 0.85f) }, 0.3f, 0f, 0f);
+                        Loft(deck, rings, (a, b, nn) => UVr(R.Rock, 1, 3), new Vector3(c.x, 0, c.z), new Vector3(c.x, 1, c.z));
+                    }
+                }
+            }
+            foreach (var (pts, rev) in new[] { (laneA, false), (laneB, true) })
+            {
+                var list = new List<Vector3>(pts); if (rev) list.Reverse();
+                var go = new GameObject($"Lane_{lanes++}");
+                go.transform.SetParent(root, false);
+                var lane = go.AddComponent<TrafficLane>();
+                var so = new UnityEditor.SerializedObject(lane);
+                var arrP = so.FindProperty("points"); arrP.arraySize = list.Count;
+                for (int k = 0; k < list.Count; k++) arrP.GetArrayElementAtIndex(k).vector3Value = list[k];
+                var arr = so.FindProperty("carMeshes"); arr.arraySize = carMeshes.Length;
+                for (int k = 0; k < carMeshes.Length; k++) arr.GetArrayElementAtIndex(k).objectReferenceValue = carMeshes[k];
+                so.FindProperty("material").objectReferenceValue = atlasMat;
+                float len = 0f; for (int k = 1; k < list.Count; k++) len += Vector3.Distance(list[k - 1], list[k]);
+                so.FindProperty("cars").intValue = Mathf.RoundToInt(len / 16f);
+                so.FindProperty("speed").floatValue = Rf(9f, 13f);
+                so.FindProperty("seed").intValue = lanes * 7;
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
+        }
+        MeshObject("Viaducts", env, Reg(deck.Build("Viaducts")), atlasMat, Vector3.zero, Quaternion.identity, Vector3.one, true, true);
+    }
+
     // ------------------------------------------------------------ Fernando de Noronha
 
     // Centro e raio aproximados do percurso (para pôr marcos ao fundo).

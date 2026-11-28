@@ -9,7 +9,7 @@ public static partial class AudioSynth
 
     private static void GenerateAmbient()
     {
-        Func<float[]>[] biomes = { Amazon, Caatinga, Cerrado, Pantanal, Island, Lencois, Cave, Serra, Volcano, Sky };
+        Func<float[]>[] biomes = { Amazon, Caatinga, Cerrado, Pantanal, Island, Lencois, Cave, Serra, City, Sky };
         for (int i = 0; i < biomes.Length; i++)
         {
             Seed(1000 + i * 37);
@@ -456,6 +456,64 @@ public static partial class AudioSynth
     private static float[] Snow()
     {
         return Sum(Wind(450f, 700f, 0.6f, 1f, 0.8f, 1, 2, 3), Whistle(500f, 1100f, 8f, 0.35f, 1, 2, 5), Whistle(900f, 1500f, 10f, 0.15f, 2, 3));
+    }
+
+    // São Paulo: ronco do trânsito, chiado de pneus, buzinas e uma sirene ao longe.
+    private static float[] City()
+    {
+        int n = AmbN;
+        var w = NoiseTable(n);
+        var lo = new Svf(); var hiss = new Svf();
+        var gust = Gusts(n, 1, 2, 5);
+        var o = Loop(n, i =>
+        {
+            float g = gust(i);
+            lo.Process(w[i], 160f + 80f * g, 0.7f, AmbRate);
+            hiss.Process(w[(i * 5 + 3) % n], 1400f, 0.8f, AmbRate);
+            return lo.Lp * (0.9f + 0.4f * g) + hiss.Bp * 0.18f * (0.4f + 0.6f * g);
+        });
+        Scatter(o, 0.45f, Honk, 0.06f, 0.22f);
+        Mix(o, Siren(Range(4f, 6f)), (int)(Rand() * n), 0.05f, true);
+        return o;
+    }
+
+    // Buzina: duas notas quadradas abafadas, curta ou dupla.
+    private static float[] Honk()
+    {
+        int R = AmbRate;
+        float f0 = Range(330f, 480f), f1 = f0 * Range(1.2f, 1.3f);
+        int beeps = rng.Next(1, 3);
+        float d = Range(0.15f, 0.4f);
+        var o = new float[(int)((beeps * (d + 0.12f)) * R)];
+        var f = new Svf();
+        for (int i = 0; i < o.Length; i++)
+        {
+            float t = i / (float)R;
+            float local = t % (d + 0.12f);
+            float env = local < d ? Mathf.Min(1f, local / 0.01f) * Mathf.Min(1f, (d - local) / 0.02f) : 0f;
+            float sq = Mathf.Sign(Mathf.Sin(Tau * f0 * t)) + Mathf.Sign(Mathf.Sin(Tau * f1 * t));
+            f.Process(sq, 1800f, 0.8f, R);
+            o[i] = f.Lp * env * 0.5f;
+        }
+        return o;
+    }
+
+    // Sirene distante (sobe e desce), abafada.
+    private static float[] Siren(float dur)
+    {
+        int R = AmbRate, n = (int)(dur * R);
+        var o = new float[n];
+        var f = new Svf();
+        float ph = 0f;
+        for (int i = 0; i < n; i++)
+        {
+            float t = i / (float)R;
+            float fr = 900f + 300f * Mathf.Sin(Tau * 0.7f * t);
+            ph += fr / R;
+            f.Process(Mathf.Sin(Tau * ph) + 0.3f * Mathf.Sin(Tau * ph * 2f), 1500f, 0.7f, R);
+            o[i] = f.Lp * Hump(t, dur);
+        }
+        return o;
     }
 
     private static float[] Volcano()

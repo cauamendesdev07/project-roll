@@ -346,6 +346,7 @@ public static partial class ThemedLevelBuilder
             case "Atoba": return MakeBird(kind, new BirdSpec { L = 0.45f, body = F.White, belly = F.White, headF = F.DarkBrown, beak = F.Yellow, beakLen = 0.12f, tail = F.DarkBrown, tailLen = 0.18f, wing = F.DarkBrown, wingTip = F.DarkBrown, wingLen = 0.75f });
             case "Fragata": return MakeBird(kind, new BirdSpec { L = 0.5f, body = F.Black, belly = F.Red, headF = F.Black, beak = F.Gray, beakLen = 0.14f, tail = F.Black, tailLen = 0.4f, wing = F.Black, wingTip = F.Black, wingLen = 1.15f });
             case "QueroQuero": return MakeBird(kind, new BirdSpec { L = 0.36f, body = F.Gray, belly = F.White, headF = F.Gray, beak = F.Red, beakLen = 0.08f, tail = F.Black, tailLen = 0.14f, wing = F.Gray, wingTip = F.Black, wingLen = 0.5f });
+            case "Pombo": return MakeBird(kind, new BirdSpec { L = 0.32f, body = F.Gray, belly = F.Gray, headF = F.DolphinGray, beak = F.Black, beakLen = 0.05f, tail = F.DolphinGray, tailLen = 0.14f, wing = F.Gray, wingTip = F.Black, wingLen = 0.42f });
             case "Gaivota": return MakeBird(kind, new BirdSpec { L = 0.4f, body = F.White, belly = F.White, headF = F.White, beak = F.Yellow, beakLen = 0.09f, tail = F.White, tailLen = 0.15f, wing = F.Gray, wingTip = F.Black, wingLen = 0.62f });
             case "GralhaAzul": return MakeBird(kind, new BirdSpec { L = 0.36f, body = F.Blue, belly = F.Blue, headF = F.Black, beak = F.Black, beakLen = 0.07f, tail = F.Blue, tailLen = 0.26f, wing = F.Blue, wingTip = F.Black, wingLen = 0.38f });
             case "Harpia": return MakeBird(kind, new BirdSpec { L = 0.85f, body = F.Gray, belly = F.White, headF = F.Gray, beak = F.Black, beakLen = 0.12f, tail = F.Gray, tailLen = 0.4f, wing = F.DarkBrown, wingTip = F.Black, wingLen = 1.25f });
@@ -710,8 +711,9 @@ public static partial class ThemedLevelBuilder
                 Grounded("Graxaim", 2, 1.2f, 1.2f, 3f, 0.03f, 7f, 0f, 10f, 28f);
                 Grounded("Ovelha", 5, 1.1f, 0.35f, 5f, 0.01f, 3f, 0f, 14f, 40f);
                 break;
-            case "Vulcao":
-                Birds("Urubu", 4, 1.6f, true, 14f, 24f, 10f, 18f, 1.6f);
+            case "SaoPaulo":
+                Birds("Pombo", 6, 1.4f, false, 4f, 10f, 6f, 12f, 3.4f);
+                Birds("Urubu", 2, 1.6f, true, 22f, 30f, 14f, 20f, 1.6f);
                 break;
             case "Ceu":
                 Birds("Harpia", 2, 1.5f, true, 6f, 14f, 12f, 18f, 1.4f);

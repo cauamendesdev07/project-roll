@@ -114,6 +114,9 @@ public static partial class ThemedLevelBuilder
             case "bromeliad": f = s => Bromeliad(s); n = 3; break;
             case "araucaria": f = s => Araucaria(16f, s); n = 4; break;
             case "fence": f = s => Fence(s); n = 3; break;
+            case "building": f = s => Building(30f, s); n = 4; break;
+            case "lamp": f = s => Lamp(s); n = 1; break;
+            case "rooftop": f = s => Rooftop(s); n = 3; break;
             default: throw new Exception("prop desconhecido " + kind);
         }
         m = new Mesh[n];
@@ -147,6 +150,9 @@ public static partial class ThemedLevelBuilder
             case "bromeliad": return (0.8f, 1.4f);
             case "araucaria": return (0.8f, 1.3f);
             case "fence": return (0.95f, 1.05f);
+            case "building": return (0.75f, 1.35f);
+            case "lamp": return (0.95f, 1.1f);
+            case "rooftop": return (0.9f, 1.3f);
             default: return (0.8f, 1.3f);
         }
     }
@@ -369,7 +375,16 @@ public static partial class ThemedLevelBuilder
         var skyMat = MakeMat(M("Sky"), Shader.Find("Skybox/Panoramic"), m => { m.SetTexture("_MainTex", sky); m.SetFloat("_Mapping", 1f); m.SetFloat("_ImageType", 0f); m.SetFloat("_Exposure", 1f); m.SetFloat("_Rotation", 0f); });
         Material hazardMat = null;
         if (T.hazardCol.a > 0f)
-            hazardMat = T.hazardIsCloud
+            hazardMat = T.hazardWater
+                ? MakeMat(M("HazardWater"), lit, m =>
+                {
+                    // enchente / mar subindo: água opaca com ondulação
+                    MakeTransparent(m, 0, false); m.SetTexture("_BaseMap", ripple); m.SetTextureScale("_BaseMap", new Vector2(40f, 40f));
+                    var c = T.hazardCol; c.a = 0.93f; m.SetColor("_BaseColor", c);
+                    m.SetTexture("_BumpMap", normal); m.SetTextureScale("_BumpMap", new Vector2(40f, 40f)); m.SetFloat("_BumpScale", 0.6f); m.EnableKeyword("_NORMALMAP");
+                    m.SetFloat("_Smoothness", 0.82f); m.SetFloat("_Metallic", 0f); m.DisableKeyword("_EMISSION");
+                })
+                : T.hazardIsCloud
                 ? MakeMat(M("HazardStorm"), pUnlit, m => { MakeTransparent(m, 0, true); m.SetTexture("_BaseMap", mistTex); var c = T.hazardCol; c.a = 0.95f; m.SetColor("_BaseColor", c); })
                 : MakeMat(M("HazardLava"), lit, m =>
                 {
@@ -572,6 +587,7 @@ public static partial class ThemedLevelBuilder
                     float edge = Mathf.Min(hx - Mathf.Abs(lx), hz - Mathf.Abs(lz));
                     if (!Chance(edge < 0.9f ? 0.9f : 0.15f)) continue;
                     string kind = T.topDecor[Ri(0, T.topDecor.Length - 1)];
+                    if (kind == "rooftop" && Chance(0.88f)) continue;   // coisas de laje: poucas
                     if ((kind == "rock" || kind == "mushroom" || kind == "crystalsmall" || kind == "smallcactus") && (edge > 0.6f || Chance(0.6f))) kind = T.topDecor[0];
                     var wp = new Vector3(p.position.x + lx, info.top + 0.004f, p.position.z + lz);
                     float sc = kind == "rock" ? 0.2f : (kind == "crystalsmall" ? 0.5f : (kind == "mushroom" ? 0.55f : (kind == "smallcactus" ? 0.4f : (kind == "reeds" ? 0.6f : 0.9f))));
@@ -605,6 +621,7 @@ public static partial class ThemedLevelBuilder
                     float prob = (d < 30f ? 0.72f : (d < 55f ? 0.55f : 0.4f)) * T.treeDensity / 0.6f;
                     if (!Chance(prob) || MeshNormal(px, pz).y < 0.72f) continue;
                     string kind = PickTree();
+                    if (kind == "building" && d < 24f) continue;   // prédios longe do caminho, para não tapar a vista
                     PlaceProp(kind, new Vector3(px, h - 0.15f, pz), Vector3.up, d < 26f, 1f, 0f);
                     treeCount++;
                 }
@@ -723,6 +740,7 @@ public static partial class ThemedLevelBuilder
         if (T.terrain == TerrainMode.Cave) BuildCaveCeiling(env, x0, x1, z0, z1);
         if (T.key == "Vulcao") BuildVolcano(env, waterMat);
         if (T.key == "Noronha") BuildNoronha(env);
+        if (T.key == "SaoPaulo") BuildSaoPaulo(env);
         if (T.terrain == TerrainMode.None) BuildSkyIslands(x0, x1, z0, z1, infos);
         if (T.lightShafts) BuildShafts(env, shaftMat, sunDir);
         if (T.caveLights) BuildCaveCrystals(env);
