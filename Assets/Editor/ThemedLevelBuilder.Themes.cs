@@ -166,21 +166,22 @@ public static partial class ThemedLevelBuilder
             };
             case 8: return new Theme
             {
-                key = "Neve", title = "Pico Nevado",
-                atlas = new[] { "#EEF4FA", "#FFFFFF", "#244A44", "#2F5E52", "#5E8A7A", "#5A4A44", "#B89A7A", "#6E7A8A", "#E2EAF2", "#4E5664", "#9CC8E0", "#E05A4A", "#F2F0EA", "#F2C14E", "#FFFFFF", "#8A9AA8" },
-                skyZenith = C("#7C98B8"), skyHorizon = C("#DCE6EE"), cloudCol = C("#F4F6FA"), cloudAmount = 0.9f,
-                sunCol = C("#F2F4FF"), sunElev = 30, sunYaw = 300, sunIntensity = 1.05f,
-                ambSky = C("#C8D6E6"), ambEq = C("#AAB8C8"), ambGround = C("#6A7280"),
-                fogCol = C("#DCE4EC"), fogStart = 20, fogEnd = 170,
-                water = WaterMode.Ice, waterCol = C("#BFE3F2"), woodStumps = false, bankHeight = 2.2f,
-                particles = ParticleMode.Snow, particleA = C("#FFFFFF"), particleB = C("#E8F0FF"), particleRate = 60f,
+                key = "Urupema", title = "Urupema – Capital do Frio",
+                atlas = new[] { "#B89A58", "#D6CDB0", "#22402E", "#2F5A3C", "#6E8A4E", "#5A4636", "#9C7A54", "#7C705E", "#9C9270", "#6A5A44", "#A8D0E4", "#C8463A", "#F2F0EA", "#E8C25A", "#FFFFFF", "#8A8A60" },
+                skyZenith = C("#4C86C8"), skyHorizon = C("#DCE8F0"), cloudCol = C("#F4F6FA"), cloudAmount = 0.35f,
+                sunCol = C("#FFF0DC"), sunElev = 18, sunYaw = 300, sunIntensity = 1.15f,
+                ambSky = C("#C2D2E4"), ambEq = C("#B4B2A4"), ambGround = C("#5E5A4E"),
+                fogCol = C("#DCE4EC"), fogStart = 25, fogEnd = 190,
+                water = WaterMode.Ice, waterCol = C("#C8E6F2"), woodStumps = true, bankHeight = 1.8f,
+                mist = true, mistCol = C("#EEF2F6"), mistAlpha = 0.22f,
+                particles = ParticleMode.Snow, particleA = C("#FFFFFF"), particleB = C("#E8F0FF"), particleRate = 14f,
                 accent = C("#FFB46A"), glow = C("#FFB46A"),
-                exposure = 0.1f, contrast = 8f, saturation = -4f, temperature = -10f, tint = 0f, vignette = 0.2f, vignetteCol = C("#203040"),
-                tuftBase = R.Fern, tuftTip = R.Cream, bushAlt = R.PineMid, canopyAlt = R.PineMid,
-                trees = new[] { "snowpine", "drybare" }, treeWeights = new[] { 0.85f, 0.15f }, treeDensity = 0.6f, gorgeTree = "snowpine",
-                decor = new[] { ("rock", 0.04f), ("tuft", 0.05f) },
-                topDecor = new[] { "rock" },
-                plateauTree = "snowpine", plateauTree2 = "snowpine",
+                exposure = 0.1f, contrast = 11f, saturation = 14f, temperature = -3f, tint = 0f, vignette = 0.2f, vignetteCol = C("#203040"),
+                tuftBase = R.GrassTop, tuftTip = R.GrassLight, bushAlt = R.PineMid, canopyAlt = R.PineMid,
+                trees = new[] { "araucaria", "bush" }, treeWeights = new[] { 0.8f, 0.2f }, treeDensity = 0.27f, gorgeTree = "araucaria",
+                decor = new[] { ("tuft", 0.4f), ("rock", 0.03f), ("fence", 0.006f), ("bush", 0.02f) },
+                topDecor = new[] { "tuft", "rock" },
+                plateauTree = "araucaria", plateauTree2 = "araucaria",
             };
             case 9: return new Theme
             {

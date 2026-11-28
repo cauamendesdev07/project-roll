@@ -13,7 +13,10 @@ public class ScrollingTexture : MonoBehaviour
     private int scaleOffsetId;
     private Vector4 baseScaleOffset;
 
-    private void Awake()
+    private void Awake() => Init();
+
+    // Também chamado no Update: depois de recompilar com o jogo rodando, o Awake não roda de novo.
+    private void Init()
     {
         targetRenderer = GetComponent<Renderer>();
         block = new MaterialPropertyBlock();
@@ -27,6 +30,7 @@ public class ScrollingTexture : MonoBehaviour
 
     private void Update()
     {
+        if (block == null) Init();
         Vector2 offset = speed * Time.time;
 
         targetRenderer.GetPropertyBlock(block);

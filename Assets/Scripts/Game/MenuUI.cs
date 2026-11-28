@@ -82,6 +82,8 @@ public class MenuUI : MonoBehaviour
             var name = UiKit.Label("Name", tile.transform, GameManager.LevelName(level), 22f, UiKit.Text, TextAlignmentOptions.Center, true);
             UiKit.Anchor(name.rectTransform, new Vector2(0, 0.5f), new Vector2(1, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -20), new Vector2(-20, 40));
             name.characterSpacing = 1f;
+            name.textWrappingMode = TextWrappingModes.Normal;
+            name.enableAutoSizing = true; name.fontSizeMin = 14f; name.fontSizeMax = 22f;
             var info = UiKit.Label("Best", tile.transform, "", 21f, UiKit.TextDim, TextAlignmentOptions.Center);
             UiKit.Anchor(info.rectTransform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0), new Vector2(0, 18), new Vector2(-20, 60));
             info.textWrappingMode = TextWrappingModes.Normal;

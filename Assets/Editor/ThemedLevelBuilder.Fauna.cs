@@ -172,6 +172,35 @@ public static partial class ThemedLevelBuilder
                 ConeTo(h, Vector3.zero, new Vector3(0, -0.01f, 0.1f), 0.04f, F.Orange);
                 break;
             }
+            case "Graxaim":
+            {
+                // graxaim (cachorro-do-mato): cinza-amarronzado, focinho fino, cauda peluda
+                float y = 0.36f;
+                Ell(b, new Vector3(0, y, 0), new Vector3(0.12f, 0.13f, 0.32f), F.Gray, 1);
+                Ell(b, new Vector3(0, y - 0.04f, 0.05f), new Vector3(0.09f, 0.09f, 0.22f), F.Shell, 0);
+                foreach (var (x, z) in new[] { (-0.06f, 0.2f), (0.06f, 0.2f), (-0.06f, -0.2f), (0.06f, -0.2f) }) Rod(b, new Vector3(x, y - 0.06f, z), new Vector3(x, 0f, z), 0.03f, 0.022f, F.DarkBrown, 4);
+                Rod(b, new Vector3(0, y + 0.02f, -0.3f), new Vector3(0, y - 0.12f, -0.6f), 0.07f, 0.05f, F.Gray);
+                Ell(b, new Vector3(0, y - 0.13f, -0.62f), Vector3.one * 0.05f, F.Black, 0);
+                hp = new Vector3(0, y + 0.12f, 0.32f);
+                Ell(h, new Vector3(0, 0.01f, 0.04f), new Vector3(0.08f, 0.08f, 0.1f), F.Gray, 0);
+                ConeTo(h, new Vector3(0, -0.01f, 0.1f), new Vector3(0, -0.03f, 0.24f), 0.04f, F.DarkBrown);
+                foreach (float sx in new[] { -1f, 1f }) { ConeTo(h, new Vector3(sx * 0.05f, 0.06f, 0.02f), new Vector3(sx * 0.07f, 0.16f, 0f), 0.035f, F.Gray); Ell(h, new Vector3(sx * 0.05f, 0.03f, 0.1f), Vector3.one * 0.014f, F.Black, 0); }
+                break;
+            }
+            case "Ovelha":
+            {
+                // ovelha: lã branca em bolas, cabeça e pernas pretas
+                float y = 0.5f;
+                Ell(b, new Vector3(0, y, 0), new Vector3(0.26f, 0.24f, 0.36f), F.White, 1);
+                foreach (var (x, yy, z) in new[] { (0.12f, 0.12f, 0.15f), (-0.12f, 0.1f, -0.12f), (0f, 0.16f, -0.02f), (0.1f, 0.06f, -0.2f), (-0.1f, 0.08f, 0.18f) })
+                    Ell(b, new Vector3(x, y + yy, z), Vector3.one * 0.13f, F.White, 0);
+                foreach (var (x, z) in new[] { (-0.12f, 0.2f), (0.12f, 0.2f), (-0.12f, -0.2f), (0.12f, -0.2f) }) Rod(b, new Vector3(x, y - 0.15f, z), new Vector3(x, 0f, z), 0.035f, 0.03f, F.Black, 4);
+                hp = new Vector3(0, y + 0.08f, 0.36f);
+                Ell(h, new Vector3(0, -0.02f, 0.06f), new Vector3(0.08f, 0.09f, 0.13f), F.Black, 0);
+                Ell(h, new Vector3(0, 0.06f, 0f), new Vector3(0.1f, 0.06f, 0.08f), F.White, 0);
+                foreach (float sx in new[] { -1f, 1f }) Ell(h, new Vector3(sx * 0.1f, 0.01f, 0.02f), new Vector3(0.06f, 0.025f, 0.035f), F.Black, 0);
+                break;
+            }
             case "Macaco":
             {
                 // macaco-prego sentado (origem nos pés), cauda longa pendurada
@@ -316,6 +345,7 @@ public static partial class ThemedLevelBuilder
             case "Tuiuiu": return MakeBird(kind, new BirdSpec { L = 0.72f, body = F.White, belly = F.White, headF = F.Black, beak = F.Black, beakLen = 0.36f, tail = F.White, tailLen = 0.18f, wing = F.White, wingTip = F.Black, wingLen = 1.05f, neckLen = 0.42f, legLen = 0.5f, leg = F.Black });
             case "Atoba": return MakeBird(kind, new BirdSpec { L = 0.45f, body = F.White, belly = F.White, headF = F.DarkBrown, beak = F.Yellow, beakLen = 0.12f, tail = F.DarkBrown, tailLen = 0.18f, wing = F.DarkBrown, wingTip = F.DarkBrown, wingLen = 0.75f });
             case "Fragata": return MakeBird(kind, new BirdSpec { L = 0.5f, body = F.Black, belly = F.Red, headF = F.Black, beak = F.Gray, beakLen = 0.14f, tail = F.Black, tailLen = 0.4f, wing = F.Black, wingTip = F.Black, wingLen = 1.15f });
+            case "QueroQuero": return MakeBird(kind, new BirdSpec { L = 0.36f, body = F.Gray, belly = F.White, headF = F.Gray, beak = F.Red, beakLen = 0.08f, tail = F.Black, tailLen = 0.14f, wing = F.Gray, wingTip = F.Black, wingLen = 0.5f });
             case "Gaivota": return MakeBird(kind, new BirdSpec { L = 0.4f, body = F.White, belly = F.White, headF = F.White, beak = F.Yellow, beakLen = 0.09f, tail = F.White, tailLen = 0.15f, wing = F.Gray, wingTip = F.Black, wingLen = 0.62f });
             case "GralhaAzul": return MakeBird(kind, new BirdSpec { L = 0.36f, body = F.Blue, belly = F.Blue, headF = F.Black, beak = F.Black, beakLen = 0.07f, tail = F.Blue, tailLen = 0.26f, wing = F.Blue, wingTip = F.Black, wingLen = 0.38f });
             case "Harpia": return MakeBird(kind, new BirdSpec { L = 0.85f, body = F.Gray, belly = F.White, headF = F.Gray, beak = F.Black, beakLen = 0.12f, tail = F.Gray, tailLen = 0.4f, wing = F.DarkBrown, wingTip = F.Black, wingLen = 1.25f });
@@ -335,7 +365,7 @@ public static partial class ThemedLevelBuilder
         if (speciesCache.TryGetValue(kind, out var s)) return s;
         switch (kind)
         {
-            case "Capivara": case "LoboGuara": case "Tatu": case "Ema": case "Pinguim": case "Calango": case "Macaco": case "Preguica": s = MakeWalker(kind); break;
+            case "Capivara": case "LoboGuara": case "Tatu": case "Ema": case "Pinguim": case "Calango": case "Macaco": case "Preguica": case "Graxaim": case "Ovelha": s = MakeWalker(kind); break;
             case "Jacare": case "Boto": case "BotoRosa": case "Tartaruga": case "Peixe": s = MakeSwimmer(kind); break;
             case "Borboleta": s = MakeButterfly(); break;
             case "Morcego": s = MakeBat(); break;
@@ -674,17 +704,11 @@ public static partial class ThemedLevelBuilder
                 Swimmers("Peixe", 6, 1.2f, 0.6f, 0.4f, 4f, 30f);
                 waterMinDepth = 0.7f;
                 break;
-            case "Neve":
-                for (int i = 0; i < 3; i++)
-                {
-                    if (!FindWater(4f, 22f, out var a, area)) continue;      // anda sobre o rio congelado
-                    a.y = T.waterY;
-                    if (!SegmentFrom(a, 3f, 6f, true, out var b)) continue;
-                    b.y = a.y;
-                    Walker(root, "Pinguim", a, b, 0.45f, 1.4f, Rf(2f, 4f), 0.03f, 6f, 9f);
-                    count++;
-                }
+            case "Urupema":
                 Birds("GralhaAzul", 3, 1.6f, false, 5f, 11f, 6f, 10f, 3.2f);
+                Birds("QueroQuero", 3, 1.4f, false, 3f, 7f, 7f, 12f, 3.6f);
+                Grounded("Graxaim", 2, 1.2f, 1.2f, 3f, 0.03f, 7f, 0f, 10f, 28f);
+                Grounded("Ovelha", 5, 1.1f, 0.35f, 5f, 0.01f, 3f, 0f, 14f, 40f);
                 break;
             case "Vulcao":
                 Birds("Urubu", 4, 1.6f, true, 14f, 24f, 10f, 18f, 1.6f);

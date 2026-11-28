@@ -9,7 +9,7 @@ public static partial class AudioSynth
 
     private static void GenerateAmbient()
     {
-        Func<float[]>[] biomes = { Amazon, Caatinga, Cerrado, Pantanal, Island, Lencois, Cave, Snow, Volcano, Sky };
+        Func<float[]>[] biomes = { Amazon, Caatinga, Cerrado, Pantanal, Island, Lencois, Cave, Serra, Volcano, Sky };
         for (int i = 0; i < biomes.Length; i++)
         {
             Seed(1000 + i * 37);
@@ -429,6 +429,28 @@ public static partial class AudioSynth
         Scatter(drips, 1.1f, Drip, 0.15f, 0.6f);
         drips = LoopReverb(drips, AmbRate, 1.6f, 3.2f, 0.3f, 0.55f);
         return Sum(drips, Rumble(110f, 0.6f), Wind(300f, 150f, 0.6f, 0.15f, 0.3f, 1, 2));
+    }
+
+    // Urupema: vento frio da serra nos campos (pouco assobio) e quero-queros ao longe.
+    private static float[] Serra()
+    {
+        var o = Sum(Wind(420f, 600f, 0.6f, 0.9f, 0.7f, 1, 2, 3), Whistle(600f, 1000f, 7f, 0.08f, 1, 3), Leaves(0.12f, 1, 3, 5));
+        Scatter(o, 0.12f, QueroQuero, 0.12f, 0.3f);
+        return o;
+    }
+
+    // "quero-quero": dois gritos agudos e estridentes descendo.
+    private static float[] QueroQuero()
+    {
+        int R = AmbRate;
+        var o = new float[(int)(0.7f * R)];
+        float f0 = Range(2500f, 2900f);
+        for (int k = 0; k < 2; k++)
+        {
+            var call = Sweep(R, 0.16f, t => f0 * (1.08f - 0.3f * t / 0.16f), t => Hump(t, 0.16f), 0.35f, 0.15f);
+            Mix(o, call, (int)(k * 0.24f * R), k == 0 ? 1f : 0.85f, false);
+        }
+        return o;
     }
 
     private static float[] Snow()

@@ -80,6 +80,7 @@ public class GameUI : MonoBehaviour
         hudLevel = UiKit.Label("Level", left, "FASE 1", 22f, UiKit.Accent, TextAlignmentOptions.Left, true);
         UiKit.Anchor(hudLevel.rectTransform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 1), new Vector2(22, -10), new Vector2(-44, 30));
         hudName = UiKit.Label("Name", left, "Amazônia", 34f, UiKit.Text, TextAlignmentOptions.Left, true);
+        hudName.enableAutoSizing = true; hudName.fontSizeMin = 20f; hudName.fontSizeMax = 34f;
         UiKit.Anchor(hudName.rectTransform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 0), new Vector2(22, 10), new Vector2(-44, 44));
 
         var right = UiKit.Img("StatsPanel", hud.transform, UiKit.PanelSoft).rectTransform;

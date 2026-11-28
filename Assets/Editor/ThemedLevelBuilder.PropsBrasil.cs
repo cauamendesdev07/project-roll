@@ -177,6 +177,62 @@ public static partial class ThemedLevelBuilder
         Blob(mb, Vector3.up * 0.18f, new Vector3(0.1f, 0.14f, 0.1f), 0.1f, 0, n => UVr(R.MushCap, 4, 6));
     });
 
+    // ------------------------------------------------------------ Urupema (serra catarinense)
+
+    // Araucária: tronco reto e nu, copa em candelabro (galhos em verticilos que sobem nas pontas,
+    // com tufos escuros), formando uma "taça" achatada no alto.
+    static MB Araucaria(float H, int seed) => WithSeed(seed, mb =>
+    {
+        float r = H * 0.028f;
+        Trunk(mb, H * 0.92f, r, r * 0.55f, 6, Vector3.zero, 0f);
+        int whorls = 3;
+        for (int w = 0; w < whorls; w++)
+        {
+            float y = H * (0.68f + w * 0.1f);
+            float len = H * (0.26f - w * 0.06f);
+            int arms = Ri(5, 7);
+            float rot = Rf(0, 6.28f);
+            for (int a = 0; a < arms; a++)
+            {
+                float ang = rot + a * Mathf.PI * 2 / arms;
+                var dir = new Vector3(Mathf.Cos(ang), 0, Mathf.Sin(ang));
+                var from = Vector3.up * y;
+                var mid = from + dir * len * 0.65f + Vector3.up * len * 0.05f;
+                var tip = from + dir * len + Vector3.up * len * 0.35f;
+                var s1 = Vector3.Cross(dir, Vector3.up).normalized * r * 0.25f;
+                var c = UVr(R.Bark, 2, 4);
+                mb.TriRaw(from - s1, from + s1, mid, c); mb.TriRaw(from + s1 + Vector3.up * 0.05f, from - s1 + Vector3.up * 0.05f, mid, c);
+                mb.TriRaw(mid - s1 * 0.6f, mid + s1 * 0.6f, tip, c);
+                // tufo de grimpas na ponta (achatado, virado para cima)
+                Blob(mb, tip + Vector3.up * 0.15f, new Vector3(len * 0.32f, len * 0.16f, len * 0.32f), 0.15f, 0, n =>
+                    UV(n.y > 0.3f ? R.PineMid : R.PineDark, Mathf.Clamp(Mathf.RoundToInt(2 + (n.y + 1) * 1.6f + Rf(-0.6f, 0.6f)), 0, 7)));
+                Blob(mb, mid + Vector3.up * 0.1f, new Vector3(len * 0.2f, len * 0.1f, len * 0.2f), 0.15f, 0, n => UVr(R.PineDark, 2, 4));
+            }
+        }
+        Blob(mb, Vector3.up * H * 0.95f, new Vector3(H * 0.06f, H * 0.04f, H * 0.06f), 0.1f, 0, n => UVr(R.PineMid, 3, 5));
+    });
+
+    // Cerca de madeira dos campos: dois mourões e duas travessas.
+    static MB Fence(int seed) => WithSeed(seed, mb =>
+    {
+        float len = Rf(2.6f, 3.4f), h = Rf(0.9f, 1.1f);
+        var c = UVr(R.WoodRing, 2, 4);
+        foreach (float x in new[] { -len * 0.5f, len * 0.5f })
+        {
+            var rings = Prism(new Vector3(x, 0, 0), 4, new[] { (-0.3f, 0.07f), (h + 0.1f, 0.06f) }, 0.78f, 0f, 0.05f);
+            Loft(mb, rings, (i, j, n) => UVr(R.Bark, 2, 4), new Vector3(x, 0, 0), new Vector3(x, 1, 0));
+            Fan(mb, new Vector3(x, h + 0.12f, 0), rings[1], () => UVr(R.Bark, 3, 5), Vector3.up);
+        }
+        foreach (float y in new[] { h * 0.45f, h * 0.85f })
+        {
+            var a = new Vector3(-len * 0.55f, y, 0); var b = new Vector3(len * 0.55f, y + Rf(-0.04f, 0.04f), 0);
+            var up = Vector3.up * 0.05f; var fw = Vector3.forward * 0.03f;
+            mb.Quad(a - up - fw, b - up - fw, b + up - fw, a + up - fw, c, -Vector3.forward);
+            mb.Quad(a + up + fw, b + up + fw, b - up + fw, a - up + fw, c, Vector3.forward);
+            mb.Quad(a + up - fw, b + up - fw, b + up + fw, a + up + fw, c, Vector3.up);
+        }
+    });
+
     // ------------------------------------------------------------ Fernando de Noronha
 
     // Centro e raio aproximados do percurso (para pôr marcos ao fundo).

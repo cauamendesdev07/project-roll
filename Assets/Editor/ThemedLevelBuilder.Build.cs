@@ -112,6 +112,8 @@ public static partial class ThemedLevelBuilder
             case "acai": f = s => Acai(11f, s); n = 4; break;
             case "heliconia": f = s => Heliconia(s); n = 4; break;
             case "bromeliad": f = s => Bromeliad(s); n = 3; break;
+            case "araucaria": f = s => Araucaria(16f, s); n = 4; break;
+            case "fence": f = s => Fence(s); n = 3; break;
             default: throw new Exception("prop desconhecido " + kind);
         }
         m = new Mesh[n];
@@ -143,6 +145,8 @@ public static partial class ThemedLevelBuilder
             case "acai": return (0.8f, 1.3f);
             case "heliconia": return (0.9f, 1.5f);
             case "bromeliad": return (0.8f, 1.4f);
+            case "araucaria": return (0.8f, 1.3f);
+            case "fence": return (0.95f, 1.05f);
             default: return (0.8f, 1.3f);
         }
     }
