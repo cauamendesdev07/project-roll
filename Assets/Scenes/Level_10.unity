@@ -33045,7 +33045,7 @@ MonoBehaviour:
   pushSpeed: 9
   pushUp: 2
   warnSound: whizz
-  warnVolume: 0.8
+  warnVolume: 1
   warnTime: 0.35
 --- !u!54 &1255135649
 Rigidbody:
@@ -47341,7 +47341,7 @@ MonoBehaviour:
   pushSpeed: 9
   pushUp: 2
   warnSound: whizz
-  warnVolume: 0.8
+  warnVolume: 1
   warnTime: 0.35
 --- !u!54 &1827061172
 Rigidbody:
@@ -50103,7 +50103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RisingHazard
   player: {fileID: 1536422529}
-  riseSpeed: 0.12
+  riseSpeed: 0
   maxHeight: 30
   startDelay: 6
 --- !u!23 &2006643845
@@ -51003,7 +51003,7 @@ MonoBehaviour:
   pushSpeed: 9
   pushUp: 2
   warnSound: whizz
-  warnVolume: 0.8
+  warnVolume: 1
   warnTime: 0.35
 --- !u!54 &2044486785
 Rigidbody:

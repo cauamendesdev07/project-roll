@@ -68,7 +68,7 @@ public static partial class ThemedLevelBuilder
                 so.FindProperty("pushSpeed").floatValue = 9f;
                 so.FindProperty("pushUp").floatValue = 2f;
                 so.FindProperty("warnSound").stringValue = "whizz";
-                so.FindProperty("warnVolume").floatValue = 0.8f;
+                so.FindProperty("warnVolume").floatValue = 1f;
                 so.FindProperty("warnTime").floatValue = 0.35f;
             }
             so.ApplyModifiedPropertiesWithoutUndo();

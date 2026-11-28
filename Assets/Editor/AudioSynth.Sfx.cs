@@ -205,13 +205,22 @@ public static partial class AudioSynth
             Finish(o, "Sfx/plane", R, 0.85f);
         }
 
-        // Bala perdida: zunido agudo rápido com um estalo no começo.
+        // Bala perdida: estampido seco + zunido agudo passando, com saturação para soar mais alto.
         {
-            var o = Sweep(R, 0.4f, t => 3400f - 2200f * t / 0.4f, t => Hump(t, 0.4f) * 0.6f);
-            Mix(o, Click(R, 2500f, 0.012f), 0, 0.9f, false);
+            var o = new float[(int)(0.55f * R)];
+            var lp = new Svf();
+            for (int i = 0; i < (int)(0.15f * R); i++)
+            {
+                float t = i / (float)R;
+                lp.Process(Noise(), 1800f, 0.7f, R);
+                o[i] += lp.Lp * Env(t, 0.001f, 0.035f) * 1.6f;
+            }
+            Mix(o, Click(R, 2500f, 0.015f), 0, 1.2f, false);
+            Mix(o, Sweep(R, 0.42f, t => 3400f - 2200f * t / 0.42f, t => Hump(t, 0.42f)), (int)(0.06f * R), 1f, false);
             var f = new Svf();
-            for (int i = 0; i < o.Length; i++) { float t = i / (float)R; f.Process(Noise(), 5000f, 1.2f, R); o[i] += f.Bp * Hump(t, 0.4f) * 0.4f; }
-            Finish(o, "Sfx/whizz", R, 0.8f);
+            for (int i = 0; i < o.Length; i++) { float t = i / (float)R - 0.06f; f.Process(Noise(), 5000f, 1.2f, R); o[i] += f.Bp * Hump(t, 0.42f) * 0.6f; }
+            for (int i = 0; i < o.Length; i++) o[i] = (float)System.Math.Tanh(o[i] * 2.2f);
+            Finish(o, "Sfx/whizz", R, 0.98f);
         }
 
     }
