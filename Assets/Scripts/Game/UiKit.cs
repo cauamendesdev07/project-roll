@@ -76,6 +76,7 @@ public static class UiKit
         colors.pressedColor = new Color(0.8f, 0.75f, 0.6f, 1f);
         colors.colorMultiplier = 1.4f;
         btn.colors = colors;
+        btn.onClick.AddListener(() => AudioManager.Play("click", 0.5f));
         btn.onClick.AddListener(onClick);
         var label = Label("Label", rt, text, 28f, Text, TextAlignmentOptions.Center, true);
         Stretch(label.rectTransform);

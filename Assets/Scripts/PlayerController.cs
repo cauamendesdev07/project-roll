@@ -25,9 +25,18 @@ public class PlayerController : MonoBehaviour
     private Vector3 inheritedVelocity;
     private Vector3 pendingExternalVelocity;
 
+    // Som: queda acumulada no ar para o volume do pouso.
+    private int airSteps;
+    private float maxFallSpeed;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+
+        // Depois de renascer, a queda no vazio não conta como pouso.
+        var checkpoint = GetComponent<CheckpointSystem>();
+        if (checkpoint != null)
+            checkpoint.Respawned += () => { airSteps = 0; maxFallSpeed = 0f; };
     }
 
     private void Update()
@@ -120,6 +129,7 @@ public class PlayerController : MonoBehaviour
 
         if (jumpRequested)
         {
+            AudioManager.Play("jump", 0.55f, 1f, 0.05f);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             jumpRequested = false;
             isGrounded = false;
@@ -128,6 +138,8 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGround()
     {
+        bool wasGrounded = isGrounded;
+
         // Ignora triggers: áreas de vento, checkpoints e a chegada não contam como chão.
         isGrounded = Physics.Raycast(
             transform.position,
@@ -140,5 +152,29 @@ public class PlayerController : MonoBehaviour
 
         groundSurface = isGrounded ? hit.collider.GetComponentInParent<IPlayerSurface>() : null;
         groundPoint = isGrounded ? hit.point : Vector3.zero;
+
+        UpdateSounds(wasGrounded);
+    }
+
+    // Só áudio: pouso com volume pelo impacto e rolamento pela velocidade.
+    private void UpdateSounds(bool wasGrounded)
+    {
+        Vector3 v = rb.linearVelocity;
+
+        if (!isGrounded)
+        {
+            airSteps++;
+            maxFallSpeed = Mathf.Max(maxFallSpeed, -v.y);
+        }
+        else
+        {
+            if (!wasGrounded && airSteps > 6 && maxFallSpeed > 2.5f)
+                AudioManager.Play("land", Mathf.Clamp01((maxFallSpeed - 2f) / 12f) * 0.9f + 0.1f, 1f, 0.06f);
+            airSteps = 0;
+            maxFallSpeed = 0f;
+        }
+
+        // velocidade em relação à superfície (parado numa plataforma móvel não "rola")
+        AudioManager.SetRolling(new Vector2(v.x - inheritedVelocity.x, v.z - inheritedVelocity.z).magnitude, isGrounded);
     }
 }

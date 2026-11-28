@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// Relâmpagos de vez em quando: a luz principal pisca forte por um instante (só visual).
+// Relâmpagos de vez em quando: a luz principal pisca forte por um instante, seguida de trovão.
 public class LightningFlashes : MonoBehaviour
 {
     [SerializeField] private Light targetLight;
@@ -28,6 +28,8 @@ public class LightningFlashes : MonoBehaviour
         if (Time.time >= nextFlash)
         {
             flashTime = Time.time;
+            // trovão chega um pouco depois do clarão
+            AudioManager.PlayDelayed("thunder", Random.Range(0.2f, 1.1f), Random.Range(0.45f, 0.9f), 1f, 0.12f);
             nextFlash = Time.time + Random.Range(interval.x, interval.y);
         }
 

@@ -59,6 +59,7 @@ public class CrumblingPlatform : MonoBehaviour
     private IEnumerator Crumble()
     {
         busy = true;
+        AudioManager.Play("crumble", 0.75f, 1f, 0.08f);
         float t = 0f;
 
         while (t < delay)

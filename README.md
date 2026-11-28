@@ -26,3 +26,7 @@ O workflow `.github/workflows/build.yml` usa a [GameCI](https://game.ci) para ge
 | `UNITY_LICENSE` | conteúdo do arquivo de licença `.ulf` (licença Personal) |
 
 Com licença Pro, use `UNITY_SERIAL` no lugar de `UNITY_LICENSE`. Veja como obter o `.ulf` na [documentação da GameCI](https://game.ci/docs/github/activation).
+
+## Sons
+
+Todos os sons (efeitos, ambiente de cada bioma e música) são gerados por síntese, sem arquivos de terceiros nem licenças. O gerador fica em `Assets/Editor/AudioSynth.*.cs`; para refazer os WAVs, use o menu **Project Roll > Gerar sons** no editor. Os arquivos gerados ficam em `Assets/Resources/Audio` e são versionados, então o build não depende de rodar o gerador. Para trocar um som por outro, basta substituir o WAV mantendo o nome.

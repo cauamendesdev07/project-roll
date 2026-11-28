@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviour
     public event Action<int> LevelStarted;                 // fase (0 = menu)
 
     private GameUI ui;
+    private AudioManager audioManager;
     private CheckpointSystem player;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -60,6 +61,7 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         GameSettings.Load();
         ui = gameObject.AddComponent<GameUI>();
+        audioManager = gameObject.AddComponent<AudioManager>();
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -123,6 +125,7 @@ public class GameManager : MonoBehaviour
         }
 
         GameSettings.ApplyCameras();
+        audioManager.SetLevel(CurrentLevel);
         ui.OnSceneChanged(CurrentLevel);
         LevelStarted?.Invoke(CurrentLevel);
     }
@@ -130,6 +133,7 @@ public class GameManager : MonoBehaviour
     private void OnPlayerRespawned()
     {
         LevelDeaths++;
+        AudioManager.Play("respawn", 0.7f);
         Respawned?.Invoke();
     }
 
@@ -213,6 +217,8 @@ public class GameManager : MonoBehaviour
         RunDeaths += LevelDeaths;
         SaveData.RecordCompletion(CurrentLevel, LevelTime, LevelDeaths);
         LevelCompleted?.Invoke(CurrentLevel, LevelTime, LevelDeaths);
+
+        AudioManager.Play(string.IsNullOrEmpty(nextScene) ? "victory" : "finish", 0.85f);
 
         if (string.IsNullOrEmpty(nextScene))
         {

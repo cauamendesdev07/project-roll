@@ -73,6 +73,7 @@ public class MenuUI : MonoBehaviour
             btn.targetGraphic = tile;
             var colors = btn.colors; colors.highlightedColor = new Color(1.25f, 1.1f, 0.8f); colors.colorMultiplier = 1.4f;
             colors.disabledColor = new Color(0.55f, 0.55f, 0.55f, 0.7f); btn.colors = colors;
+            btn.onClick.AddListener(() => AudioManager.Play("click", 0.5f));
             btn.onClick.AddListener(() => GameManager.Instance.LoadLevel(level));
             levelButtons[i] = btn;
 

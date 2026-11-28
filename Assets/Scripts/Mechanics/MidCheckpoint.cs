@@ -27,5 +27,6 @@ public class MidCheckpoint : MonoBehaviour
             platformRenderer.sharedMaterial = activeMaterial;
 
         activated = true;
+        AudioManager.Play("checkpoint", 0.8f);
     }
 }

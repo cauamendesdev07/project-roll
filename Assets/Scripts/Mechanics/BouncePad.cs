@@ -20,6 +20,7 @@ public class BouncePad : MonoBehaviour
             return;
 
         lastBounceTime = Time.time;
+        AudioManager.Play("bounce", 0.8f, 1f, 0.06f);
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, launchSpeed, rb.linearVelocity.z);
     }
 }
