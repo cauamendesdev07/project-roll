@@ -17,7 +17,6 @@ public class CheckpointSystem : MonoBehaviour
     public void SetCheckpoint(Vector3 newPosition)
     {
         currentCheckpoint = newPosition;
-        Debug.Log("Checkpoint atualizado!");
     }
 
     public void Respawn()

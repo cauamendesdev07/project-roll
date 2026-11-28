@@ -33,6 +33,28 @@ public class DemoPilot : MonoBehaviour
         if (checkpoint != null) checkpoint.Respawned += OnRespawned;
         BuildRoute();
         hesitateUntil = Time.time + 0.8f;
+        StartCoroutine(PlaceSomewhere());
+    }
+
+    // Começa num ponto qualquer do percurso (não sempre na largada). Espera o primeiro passo de
+    // física para o CheckpointSystem já ter guardado a largada, e então troca o checkpoint.
+    private System.Collections.IEnumerator PlaceSomewhere()
+    {
+        yield return new WaitForFixedUpdate();
+        if (route.Count < 3) yield break;
+        int k = Random.Range(0, route.Count - 2);
+        var c = route[k];
+        if (c == null || !c.enabled) yield break;
+        var b = c.bounds;
+        var pos = new Vector3(b.center.x, b.max.y + 0.6f, b.center.z);
+        var rb = GetComponent<Rigidbody>();
+        if (rb != null) { rb.linearVelocity = Vector3.zero; rb.angularVelocity = Vector3.zero; rb.position = pos; }
+        transform.position = pos;
+        if (checkpoint != null) checkpoint.SetCheckpoint(pos);
+        foreach (var trail in GetComponentsInChildren<TrailRenderer>()) trail.Clear();
+        target = Mathf.Min(k + 1, route.Count - 1);
+        var cam = Camera.main != null ? Camera.main.GetComponent<DemoCamera>() : null;
+        if (cam != null) cam.Restart();
     }
 
     private void OnDestroy()
