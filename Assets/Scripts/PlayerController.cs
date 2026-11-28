@@ -14,6 +14,21 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpForce = 9f;
     [SerializeField] private float groundCheckDistance = 0.7f;
 
+    private static int groundMask;
+    private static int GroundMask
+    {
+        get
+        {
+            if (groundMask == 0)
+            {
+                groundMask = Physics.DefaultRaycastLayers;
+                int cameraBlock = LayerMask.NameToLayer("CameraBlock");
+                if (cameraBlock >= 0) groundMask &= ~(1 << cameraBlock);
+            }
+            return groundMask;
+        }
+    }
+
     private Rigidbody rb;
     private Vector2 movementInput;
     private bool jumpRequested;
@@ -140,13 +155,13 @@ public class PlayerController : MonoBehaviour
     {
         bool wasGrounded = isGrounded;
 
-        // Ignora triggers: áreas de vento, checkpoints e a chegada não contam como chão.
+        // Ignora triggers (vento, checkpoints, chegada) e os colisores só da câmera (CameraBlock).
         isGrounded = Physics.Raycast(
             transform.position,
             Vector3.down,
             out RaycastHit hit,
             groundCheckDistance,
-            Physics.DefaultRaycastLayers,
+            GroundMask,
             QueryTriggerInteraction.Ignore
         );
 

@@ -783,6 +783,7 @@ public static partial class ThemedLevelBuilder
         EditorSceneManager.SaveScene(scene);
         log.Append($"trees {treeCount}, decor {decorCount}, instances {inst} in {groups.Count} groups, meshes {meshAssets.Count} ({meshAssets.Sum(m => (long)m.vertexCount)}v)");
         log.Append(" | " + AddFauna(level));   // fauna por último, com RNG próprio
+        log.Append(" | " + AddCameraColliders(level));
         return log.ToString();
     }
 

@@ -15,11 +15,24 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float minVerticalAngle = -20f;
     [SerializeField] private float maxVerticalAngle = 70f;
 
+    [Header("Colisão")]
+    [Tooltip("Raio da esfera que testa obstáculos entre a bola e a câmera.")]
+    [SerializeField] private float collisionRadius = 0.35f;
+    [SerializeField] private float minDistance = 1.5f;
+    [Tooltip("Tempo para voltar à distância normal depois de um obstáculo.")]
+    [SerializeField] private float returnTime = 0.35f;
+
     private float horizontalRotation;
+    private float currentDistance = -1f;
+    private float distanceVelocity;
+    private int obstacleMask;
+    private readonly RaycastHit[] hits = new RaycastHit[16];
     private float verticalRotation = 20f;
 
     private void Start()
     {
+        obstacleMask = LayerMask.GetMask("Default", "CameraBlock");
+        currentDistance = distance;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -55,11 +68,37 @@ public class CameraFollow : MonoBehaviour
 
         Vector3 targetPosition = target.position + Vector3.up * height;
 
-        Vector3 cameraPosition = targetPosition -
-            rotation * Vector3.forward * distance;
+        Vector3 back = rotation * Vector3.back;
+        float wanted = Mathf.Max(minDistance, ObstacleDistance(targetPosition, back));
 
-        transform.position = cameraPosition;
+        // Aproxima na hora (para não entrar na parede) e volta suavemente.
+        if (currentDistance < 0f || wanted < currentDistance)
+        {
+            currentDistance = wanted;
+            distanceVelocity = 0f;
+        }
+        else
+        {
+            currentDistance = Mathf.SmoothDamp(currentDistance, wanted, ref distanceVelocity, returnTime);
+        }
+
+        transform.position = targetPosition + back * currentDistance;
         transform.LookAt(targetPosition);
+    }
+
+    // Distância livre da bola até a câmera (ignora a própria bola e triggers).
+    private float ObstacleDistance(Vector3 origin, Vector3 direction)
+    {
+        float free = distance;
+        int count = Physics.SphereCastNonAlloc(origin, collisionRadius, direction, hits, distance, obstacleMask, QueryTriggerInteraction.Ignore);
+        for (int i = 0; i < count; i++)
+        {
+            var h = hits[i];
+            if (h.distance <= 0f) continue; // começou dentro do colisor: não há o que fazer
+            if (h.collider.transform == target || h.collider.transform.IsChildOf(target)) continue;
+            if (h.distance < free) free = h.distance;
+        }
+        return free;
     }
 
     private void OnDisable()
