@@ -61,7 +61,7 @@ public static partial class ThemedLevelBuilder
             }
             else
             {
-                so.FindProperty("speed").floatValue = 95f;
+                so.FindProperty("speed").floatValue = 80f;   // 1,6 m por passo de física: não atravessa a bola sem detectar
                 so.FindProperty("interval").floatValue = 8f;
                 so.FindProperty("intervalJitter").floatValue = 3f;
                 so.FindProperty("firstDelay").floatValue = 5f + i * 2.7f;
@@ -151,7 +151,7 @@ public static partial class ThemedLevelBuilder
         tr.sharedMaterial = glow; tr.time = 0.12f; tr.minVertexDistance = 0.2f;
         tr.widthCurve = new AnimationCurve(new Keyframe(0f, 0.16f), new Keyframe(1f, 0f));
         tr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        var sc = go.AddComponent<SphereCollider>(); sc.isTrigger = true; sc.radius = 0.45f;
+        var sc = go.AddComponent<SphereCollider>(); sc.isTrigger = true; sc.radius = 0.6f;
         return go;
     }
 }
