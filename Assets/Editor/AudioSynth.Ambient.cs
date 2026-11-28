@@ -9,7 +9,7 @@ public static partial class AudioSynth
 
     private static void GenerateAmbient()
     {
-        Func<float[]>[] biomes = { Forest, Caatinga, Cerrado, Pantanal, Island, Lencois, Cave, Snow, Volcano, Sky };
+        Func<float[]>[] biomes = { Amazon, Caatinga, Cerrado, Pantanal, Island, Lencois, Cave, Snow, Volcano, Sky };
         for (int i = 0; i < biomes.Length; i++)
         {
             Seed(1000 + i * 37);
@@ -328,10 +328,58 @@ public static partial class AudioSynth
 
     // ---------- Biomas ----------
 
-    private static float[] Forest()
+    // Amazônia: mata densa (muitas aves, araras, insetos, sapos ao longe), rio e chuva leve que vem e vai.
+    private static float[] Amazon()
     {
-        var o = Sum(Wind(450f, 450f, 0.6f, 0.6f, 0.5f, 1, 2, 5), Brook(0.28f, 18f), Leaves(0.25f, 2, 3, 7));
-        Scatter(o, 0.55f, BirdSong, 0.12f, 0.4f);
+        var o = Sum(Wind(380f, 260f, 0.6f, 0.3f, 0.4f, 1, 2, 5), Brook(0.18f, 8f), Rain(0.22f), Crickets(3, 0.07f));
+        int n = o.Length;
+        Mix(o, Cicada(Range(6f, 9f)), (int)(Rand() * n), 0.08f, true);
+        Scatter(o, 1.0f, BirdSong, 0.08f, 0.32f);
+        Scatter(o, 0.15f, Squawk, 0.12f, 0.25f);
+        Scatter(o, 0.5f, Croak, 0.04f, 0.1f);
+        return o;
+    }
+
+    // Chuva leve: chiado agudo + gotas, subindo e descendo uma vez no laço.
+    private static float[] Rain(float level)
+    {
+        int n = AmbN;
+        var w = NoiseTable(n);
+        var f = new Svf();
+        float ph = Rand();
+        var o = Loop(n, i =>
+        {
+            float s = 0.5f + 0.5f * Lfo(i, n, 1, ph);
+            f.Process(w[i], 4200f, 0.6f, AmbRate);
+            return f.Hp * level * s * s;
+        });
+        int drops = (int)(30 * AmbLength);
+        for (int k = 0; k < drops; k++)
+        {
+            int at = (int)(Rand() * n);
+            float s = 0.5f + 0.5f * Lfo(at, n, 1, ph);
+            Mix(o, Click(AmbRate, Range(2500f, 6000f), Range(0.002f, 0.005f)), at, level * 0.5f * s * s * Range(0.3f, 1f), true);
+        }
+        return o;
+    }
+
+    // Arara: grito rouco e nasal.
+    private static float[] Squawk()
+    {
+        int R = AmbRate;
+        float d = Range(0.22f, 0.35f), f0 = Range(800f, 1100f);
+        var o = new float[(int)(d * R)];
+        var form = new Svf(); var grit = new Svf();
+        float ph = 0f;
+        for (int i = 0; i < o.Length; i++)
+        {
+            float t = i / (float)R;
+            ph += f0 * (1.1f - 0.3f * t / d) / R;
+            float saw = 2f * (ph - Mathf.Floor(ph)) - 1f;
+            form.Process(saw + Noise() * 0.4f, 1900f, 2f, R);
+            grit.Process(Noise(), 2600f, 1.2f, R);
+            o[i] = (form.Bp + grit.Bp * 0.3f) * Hump(t, d);
+        }
         return o;
     }
 

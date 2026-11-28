@@ -108,6 +108,10 @@ public static partial class ThemedLevelBuilder
             case "smallcactus": f = s => Cactus(1.5f, s); break;
             case "log": f = s => Log(s, 4.5f, 0.45f); break;
             case "island": f = s => FloatingIsland(1f, s); n = 6; break;
+            case "kapok": f = s => Kapok(18f, s); n = 3; break;
+            case "acai": f = s => Acai(11f, s); n = 4; break;
+            case "heliconia": f = s => Heliconia(s); n = 4; break;
+            case "bromeliad": f = s => Bromeliad(s); n = 3; break;
             default: throw new Exception("prop desconhecido " + kind);
         }
         m = new Mesh[n];
@@ -135,12 +139,17 @@ public static partial class ThemedLevelBuilder
             case "basaltsmall": return (0.8f, 1.6f);
             case "lily": return (0.8f, 1.4f);
             case "termite": return (0.7f, 1.4f);
+            case "kapok": return (0.8f, 1.25f);
+            case "acai": return (0.8f, 1.3f);
+            case "heliconia": return (0.9f, 1.5f);
+            case "bromeliad": return (0.8f, 1.4f);
             default: return (0.8f, 1.3f);
         }
     }
 
     static bool IsGlow(string kind) => kind == "crystal" || kind == "crystalsmall" || (kind == "mushroom" && T.glowMushrooms);
-    static bool IsTwoSided(string kind) => kind == "tuft" || kind == "flower" || kind == "reeds" || kind == "palm";
+    static bool IsTwoSided(string kind) => kind == "tuft" || kind == "flower" || kind == "reeds" || kind == "palm"
+        || kind == "kapok" || kind == "acai" || kind == "heliconia" || kind == "bromeliad";
     static Material PropMat(string kind) => IsGlow(kind) ? glowMat : (IsTwoSided(kind) ? foliageMat : atlasMat);
     static Mesh PickMesh(string kind) { var v = Prop(kind); return v[Ri(0, v.Length - 1)]; }
 
@@ -683,7 +692,7 @@ public static partial class ThemedLevelBuilder
                     float sc = Rf(0.8f, 2.2f);
                     AddInst(PickMesh("rockbig"), atlasMat, true, new Vector3(p2.x, MeshH(p2.x, p2.y) + sc * 0.15f, p2.y), Quaternion.Euler(Rf(-20, 20), Rf(0, 360), Rf(-20, 20)), sc);
                 }
-            if (T.key == "Floresta" || T.key == "Pantanal")
+            if (T.key == "Amazonia" || T.key == "Pantanal")
                 for (int i = 0, logs = 0; i < 40 && logs < 14; i++)
                 {
                     var e = RandomEdge();

@@ -79,7 +79,7 @@ public class GameUI : MonoBehaviour
         UiKit.Anchor(left, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(28, -24), new Vector2(460, 92));
         hudLevel = UiKit.Label("Level", left, "FASE 1", 22f, UiKit.Accent, TextAlignmentOptions.Left, true);
         UiKit.Anchor(hudLevel.rectTransform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 1), new Vector2(22, -10), new Vector2(-44, 30));
-        hudName = UiKit.Label("Name", left, "Floresta", 34f, UiKit.Text, TextAlignmentOptions.Left, true);
+        hudName = UiKit.Label("Name", left, "Amazônia", 34f, UiKit.Text, TextAlignmentOptions.Left, true);
         UiKit.Anchor(hudName.rectTransform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 0), new Vector2(22, 10), new Vector2(-44, 44));
 
         var right = UiKit.Img("StatsPanel", hud.transform, UiKit.PanelSoft).rectTransform;

@@ -12,7 +12,7 @@ public class BallVisuals : MonoBehaviour
     // Cor da poeira por fase (1 a 10).
     private static readonly Color[] DustColors =
     {
-        new Color(0.45f, 0.38f, 0.28f), // Floresta
+        new Color(0.45f, 0.38f, 0.28f), // Amazônia
         new Color(0.80f, 0.66f, 0.50f), // Caatinga
         new Color(0.72f, 0.44f, 0.32f), // Cerrado
         new Color(0.45f, 0.39f, 0.29f), // Pantanal

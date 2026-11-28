@@ -17,7 +17,7 @@ public static partial class ThemedLevelBuilder
     static readonly string[] FaunaHex =
     {
         "#7A5A3C", "#4A3626", "#D4752E", "#8A8A88", "#222226", "#F2F0EA", "#2F6FD6", "#F2C230",
-        "#D6332E", "#F28C1E", "#55623E", "#D6455A", "#8C9AA8", "#5E7A4A", "#8A6A3A", "#3FA9F5",
+        "#D6332E", "#F28C1E", "#55623E", "#E8909E", "#8C9AA8", "#5E7A4A", "#8A6A3A", "#3FA9F5",
     };
 
     static Vector2 FU(F f, int shade = 4) => UV((R)(int)f, shade);
@@ -172,6 +172,42 @@ public static partial class ThemedLevelBuilder
                 ConeTo(h, Vector3.zero, new Vector3(0, -0.01f, 0.1f), 0.04f, F.Orange);
                 break;
             }
+            case "Macaco":
+            {
+                // macaco-prego sentado (origem nos pés), cauda longa pendurada
+                Ell(b, new Vector3(0, 0.3f, 0), new Vector3(0.17f, 0.24f, 0.15f), F.Brown, 1);
+                Ell(b, new Vector3(0, 0.26f, 0.08f), new Vector3(0.12f, 0.16f, 0.07f), F.Shell, 0);
+                foreach (float sx in new[] { -1f, 1f })
+                {
+                    Rod(b, new Vector3(sx * 0.13f, 0.42f, 0.02f), new Vector3(sx * 0.16f, 0.12f, 0.14f), 0.04f, 0.03f, F.DarkBrown, 4);
+                    Rod(b, new Vector3(sx * 0.09f, 0.12f, 0.02f), new Vector3(sx * 0.12f, 0.02f, 0.16f), 0.05f, 0.035f, F.DarkBrown, 4);
+                }
+                Rod(b, new Vector3(0, 0.12f, -0.12f), new Vector3(0.05f, -0.25f, -0.2f), 0.035f, 0.03f, F.DarkBrown, 4);
+                Rod(b, new Vector3(0.05f, -0.25f, -0.2f), new Vector3(0.12f, -0.55f, -0.08f), 0.03f, 0.015f, F.DarkBrown, 4);
+                hp = new Vector3(0, 0.58f, 0.03f);
+                Ell(h, Vector3.zero, new Vector3(0.12f, 0.12f, 0.11f), F.DarkBrown, 0);
+                Ell(h, new Vector3(0, -0.02f, 0.07f), new Vector3(0.08f, 0.08f, 0.05f), F.Shell, 0);
+                Ell(h, new Vector3(0, 0.09f, 0.02f), new Vector3(0.09f, 0.04f, 0.08f), F.Black, 0);
+                foreach (float sx in new[] { -1f, 1f }) { Ell(h, new Vector3(sx * 0.035f, 0.01f, 0.1f), Vector3.one * 0.018f, F.Black, 0); Ell(h, new Vector3(sx * 0.11f, 0.02f, 0f), Vector3.one * 0.03f, F.Shell, 0); }
+                break;
+            }
+            case "Preguica":
+            {
+                // preguiça pendurada (origem nas mãos, no galho); corpo para baixo
+                foreach (float sx in new[] { -1f, 1f })
+                {
+                    Rod(b, new Vector3(sx * 0.08f, 0f, 0.12f), new Vector3(sx * 0.13f, -0.32f, 0.04f), 0.035f, 0.045f, F.Gray, 4);
+                    Rod(b, new Vector3(sx * 0.08f, 0f, -0.18f), new Vector3(sx * 0.12f, -0.62f, -0.06f), 0.035f, 0.05f, F.Gray, 4);
+                    ConeTo(b, new Vector3(sx * 0.08f, 0f, 0.12f), new Vector3(sx * 0.08f, 0.04f, 0.2f), 0.02f, F.DarkBrown);
+                }
+                Ell(b, new Vector3(0, -0.5f, 0f), new Vector3(0.2f, 0.28f, 0.18f), F.Gray, 1);
+                Ell(b, new Vector3(0, -0.48f, 0.08f), new Vector3(0.14f, 0.2f, 0.1f), F.Shell, 0);
+                hp = new Vector3(0, -0.3f, 0.16f);
+                Ell(h, Vector3.zero, new Vector3(0.11f, 0.1f, 0.1f), F.Shell, 0);
+                foreach (float sx in new[] { -1f, 1f }) { Ell(h, new Vector3(sx * 0.045f, 0.01f, 0.07f), new Vector3(0.035f, 0.022f, 0.02f), F.DarkBrown, 0); Ell(h, new Vector3(sx * 0.045f, 0.012f, 0.085f), Vector3.one * 0.012f, F.Black, 0); }
+                Ell(h, new Vector3(0, -0.03f, 0.095f), Vector3.one * 0.018f, F.Black, 0);
+                break;
+            }
             default: throw new Exception("animal " + name);
         }
         var sp = new Species { name = name, headPivot = hp };
@@ -198,6 +234,17 @@ public static partial class ThemedLevelBuilder
                 Rod(b, new Vector3(0, 0, -0.65f), new Vector3(0, -0.02f, -2.0f), 0.2f, 0.02f, F.Gator);
                 for (int i = 0; i < 6; i++) Ell(b, new Vector3(0, 0.13f, 0.5f - i * 0.22f), new Vector3(0.12f, 0.05f, 0.08f), F.Gator, 0);
                 foreach (float sx in new[] { -1f, 1f }) { Ell(b, new Vector3(sx * 0.11f, 0.09f, 0.62f), Vector3.one * 0.06f, F.Yellow, 0); Ell(b, new Vector3(sx * 0.13f, 0.1f, 0.65f), Vector3.one * 0.025f, F.Black, 0); }
+                break;
+            case "BotoRosa":
+                // boto-cor-de-rosa: bico longo e fino, testa arredondada (melão), corpo rosado
+                Ell(b, Vector3.zero, new Vector3(0.3f, 0.3f, 0.9f), F.PinkRed, 1);
+                Ell(b, new Vector3(0, -0.06f, 0.1f), new Vector3(0.25f, 0.2f, 0.72f), F.White, 0);
+                Ell(b, new Vector3(0, 0.08f, 0.72f), new Vector3(0.2f, 0.2f, 0.2f), F.PinkRed, 0);
+                ConeTo(b, new Vector3(0, -0.05f, 0.85f), new Vector3(0, -0.1f, 1.45f), 0.06f, F.PinkRed);
+                Ell(b, new Vector3(0, 0.22f, -0.1f), new Vector3(0.06f, 0.06f, 0.3f), F.PinkRed, 0);
+                Ell(b, new Vector3(0, 0, -1.0f), new Vector3(0.4f, 0.04f, 0.14f), F.PinkRed, 0);
+                foreach (float sx in new[] { -1f, 1f }) Ell(b, new Vector3(sx * 0.3f, -0.12f, 0.35f), new Vector3(0.2f, 0.03f, 0.12f), F.PinkRed, 0);
+                foreach (float sx in new[] { -1f, 1f }) Ell(b, new Vector3(sx * 0.12f, 0.02f, 0.68f), Vector3.one * 0.025f, F.Black, 0);
                 break;
             case "Boto":
                 Ell(b, Vector3.zero, new Vector3(0.3f, 0.32f, 0.95f), F.DolphinGray, 1);
@@ -286,8 +333,8 @@ public static partial class ThemedLevelBuilder
         if (speciesCache.TryGetValue(kind, out var s)) return s;
         switch (kind)
         {
-            case "Capivara": case "LoboGuara": case "Tatu": case "Ema": case "Pinguim": case "Calango": s = MakeWalker(kind); break;
-            case "Jacare": case "Boto": case "Tartaruga": case "Peixe": s = MakeSwimmer(kind); break;
+            case "Capivara": case "LoboGuara": case "Tatu": case "Ema": case "Pinguim": case "Calango": case "Macaco": case "Preguica": s = MakeWalker(kind); break;
+            case "Jacare": case "Boto": case "BotoRosa": case "Tartaruga": case "Peixe": s = MakeSwimmer(kind); break;
             case "Borboleta": s = MakeButterfly(); break;
             case "Morcego": s = MakeBat(); break;
             default: s = BirdOf(kind); break;
@@ -577,10 +624,13 @@ public static partial class ThemedLevelBuilder
 
         switch (T.key)
         {
-            case "Floresta":
-                Birds("AraraAzul", 4, 1.5f, false, 5f, 12f, 7f, 12f, 2.6f);
+            case "Amazonia":
+                Birds("AraraVermelha", 4, 1.5f, false, 5f, 12f, 7f, 12f, 2.6f);
+                Birds("Harpia", 1, 1.5f, true, 14f, 20f, 12f, 18f, 1.4f);
                 Perch("Tucano", GatePerch(finish, 0.9f), 1.6f * GateScale(finish));
-                Perch("Tucano", TreeTop(start), 1.6f);
+                Perch("Macaco", TreeTop(start), 1.5f);
+                Perch("Preguica", GatePerch(finish, -0.55f) + Vector3.down * 0.35f * GateScale(finish), 1.3f * GateScale(finish));
+                Leapers("BotoRosa", 3, 1f, 2f, 1.3f, 6f, 6f, 40f);
                 Flutterers("Borboleta", 3, start.position + Vector3.up * 2f, 4f, 2.5f, 1.6f, 7f, 55f);
                 Flutterers("Borboleta", 2, AlongPath(0.6f, 0f, 2f), 3f, 2.5f, 1.6f, 7f, 55f);
                 break;

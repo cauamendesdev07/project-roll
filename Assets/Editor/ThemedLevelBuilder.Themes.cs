@@ -42,18 +42,21 @@ public static partial class ThemedLevelBuilder
         {
             case 1: return new Theme
             {
-                key = "Floresta", title = "Floresta",
-                atlas = new[] { "#6FA34A", "#9CC25B", "#2E5B3F", "#3F7A4A", "#7BA445", "#6A4A35", "#C4955E", "#868A80", "#6E8A5A", "#7B5A3E", "#5C6B66", "#C2553A", "#EADCC0", "#F2C14E", "#F1EEDC", "#4E7F3E" },
-                skyZenith = C("#4A86C5"), skyHorizon = C("#C9DCD6"), cloudCol = C("#F6F0E4"),
-                sunCol = C("#FFE2B0"), sunElev = 40, sunYaw = 300, sunIntensity = 1.25f,
-                ambSky = C("#A9C6D8"), ambEq = C("#8CA88A"), ambGround = C("#4A3F31"),
-                fogCol = C("#C9DCD6"), fogStart = 30, fogEnd = 210,
-                waterCol = C("#3E8E9A"), waterfall = true, lightShafts = true, mist = true, mistCol = C("#D5E2D8"), fallingLeaves = true,
-                particles = ParticleMode.Pollen, particleA = C("#FFF1C4"), particleB = C("#FFE2B0"),
+                key = "Amazonia", title = "Amazônia",
+                atlas = new[] { "#3E7A30", "#5E9A3A", "#1C442A", "#2C6434", "#5C9C36", "#5A4430", "#B08A5A", "#6E6A5A", "#4A6E38", "#6A4A2E", "#3A2C1E", "#D8402C", "#E8DCC0", "#F2C030", "#F2EEE0", "#2A5A2A" },
+                skyZenith = C("#5C8CB4"), skyHorizon = C("#CBD8CC"), cloudCol = C("#F2F0E6"), cloudAmount = 0.75f,
+                sunCol = C("#FFE6B8"), sunElev = 42, sunYaw = 300, sunIntensity = 1.2f,
+                ambSky = C("#A2BFCC"), ambEq = C("#7E9C78"), ambGround = C("#3A3224"),
+                fogCol = C("#B6CABC"), fogStart = 24, fogEnd = 170,
+                waterCol = C("#4A3A24"), waterAlpha = 0.9f, lightShafts = true, mist = true, mistCol = C("#D8E4D8"), mistAlpha = 0.26f, fallingLeaves = true,
+                particles = ParticleMode.Pollen, particleA = C("#FFF4D0"), particleB = C("#E6F2C0"), particleRate = 22f,
                 accent = C("#F2B134"), glow = C("#F2B134"),
-                trees = new[] { "pine", "broadleaf" }, treeWeights = new[] { 0.7f, 0.3f }, gorgeTree = "pine",
-                decor = new[] { ("tuft", 0.36f), ("bush", 0.05f), ("flower", 0.035f), ("rock", 0.02f), ("mushroom", 0.012f) },
-                plateauTree = "pine", plateauTree2 = "broadleaf",
+                saturation = 18f, contrast = 12f, temperature = 5f,
+                vignetteCol = C("#0A1A10"),
+                trees = new[] { "kapok", "acai", "broadleaf" }, treeWeights = new[] { 0.3f, 0.4f, 0.3f }, treeDensity = 0.85f, gorgeTree = "acai",
+                decor = new[] { ("tuft", 0.28f), ("bush", 0.08f), ("heliconia", 0.05f), ("bromeliad", 0.03f), ("rock", 0.012f), ("mushroom", 0.01f) },
+                topDecor = new[] { "tuft", "heliconia", "bromeliad" },
+                plateauTree = "kapok", plateauTree2 = "acai",
             };
             case 2: return new Theme
             {
