@@ -329,6 +329,12 @@ public static partial class ThemedLevelBuilder
                 {
                     MakeTransparent(m, 0, false); m.SetTexture("_BaseMap", ripple); var c = T.waterCol; c.a = T.waterAlpha; m.SetColor("_BaseColor", c);
                     m.SetTexture("_BumpMap", normal); m.SetFloat("_BumpScale", 0.55f); m.EnableKeyword("_NORMALMAP"); m.SetFloat("_Smoothness", 0.9f); m.SetFloat("_Metallic", 0f);
+                    if (T.waterGlow.maxColorComponent > 0f)
+                    {
+                        m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", T.waterGlow);
+                        m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+                    }
+                    else m.DisableKeyword("_EMISSION");
                 });
                 break;
             case WaterMode.Ice:
@@ -874,7 +880,7 @@ public static partial class ThemedLevelBuilder
                 float px = x + Rf(-3f, 3f), pz = z + Rf(-3f, 3f);
                 float ci = Mathf.Clamp((px - x0) / cs, 0, nx - 0.01f), cj = Mathf.Clamp((pz - z0) / cs, 0, nz - 0.01f);
                 float hh = hgt[Mathf.FloorToInt(ci), Mathf.FloorToInt(cj)];
-                bool crystal = Chance(0.12f);
+                bool crystal = !T.limestone && Chance(0.12f);
                 AddInst(PickMesh(crystal ? "crystal" : "stalagmite"), crystal ? glowMat : atlasMat, false, new Vector3(px, hh + 0.5f, pz), Quaternion.Euler(180f, Rf(0, 360), 0), Rf(0.6f, 1.8f));
             }
     }
@@ -898,6 +904,17 @@ public static partial class ThemedLevelBuilder
             var p2 = q + side * Rf(7f, 10f);
             float h = MeshH(p2.x, p2.y);
             var pos = new Vector3(p2.x, h - 0.2f, p2.y);
+            if (T.limestone)
+            {
+                // calcário: estalagmite grande e luz azul baixa (reflexo do lago)
+                AddInst(PickMesh("stalagmite"), atlasMat, false, pos, Quaternion.Euler(0, Rf(0, 360), 0), Rf(1.2f, 2f));
+                var lb = new GameObject("CrystalLight").AddComponent<Light>();
+                lb.transform.SetParent(root, false);
+                lb.transform.position = new Vector3(pos.x, Mathf.Max(T.waterY + 1.5f, pos.y + 1.5f), pos.z);
+                lb.type = LightType.Point; lb.color = n % 3 == 2 ? T.sunCol : T.glow; lb.intensity = 3.2f; lb.range = 24f; lb.shadows = LightShadows.None;
+                n++;
+                continue;
+            }
             AddInst(PickMesh("crystal"), glowMat, false, pos, Quaternion.Euler(0, Rf(0, 360), 0), Rf(1.8f, 2.8f));
             var lg = new GameObject("CrystalLight").AddComponent<Light>();
             lg.transform.SetParent(root, false);

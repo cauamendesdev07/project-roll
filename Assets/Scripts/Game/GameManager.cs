@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     public static readonly string[] LevelNames =
     {
         "Amazônia", "Caatinga", "Cerrado", "Pantanal", "Fernando de Noronha",
-        "Lençóis Maranhenses", "Gruta de Cristais", "Pico Nevado", "Vulcão", "Acima das Nuvens",
+        "Lençóis Maranhenses", "Gruta do Lago Azul", "Pico Nevado", "Vulcão", "Acima das Nuvens",
     };
 
     public const string MainMenuScene = "MainMenu";

@@ -667,9 +667,12 @@ public static partial class ThemedLevelBuilder
                 Birds("Garca", 3, 1.3f, false, 5f, 11f, 8f, 13f, 2f);
                 Leapers("Peixe", 4, 1.5f, 1f, 0.8f, 4f, 6f, 35f);
                 break;
-            case "Gruta":
+            case "LagoAzul":
                 Flutterers("Morcego", 6, AlongPath(0.3f, 3f, 7f), 6f, 9f, 2.2f, 9f, 50f);
-                Flutterers("Morcego", 6, AlongPath(0.75f, -3f, 7f), 6f, 9f, 2.2f, 9f, 50f);
+                Flutterers("Morcego", 5, AlongPath(0.75f, -3f, 7f), 6f, 9f, 2.2f, 9f, 50f);
+                waterMinDepth = 0.4f;
+                Swimmers("Peixe", 6, 1.2f, 0.6f, 0.4f, 4f, 30f);
+                waterMinDepth = 0.7f;
                 break;
             case "Neve":
                 for (int i = 0; i < 3; i++)

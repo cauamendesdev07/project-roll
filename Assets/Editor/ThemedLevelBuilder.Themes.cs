@@ -32,6 +32,8 @@ public static partial class ThemedLevelBuilder
         public Color hazardCol; public bool hazardIsCloud;
         public R tuftBase = R.GrassTop, tuftTip = R.GrassLight, bushAlt = R.GrassTop, canopyAlt = R.GrassTop;
         public bool caveLights, neutralTonemap;
+        public Color waterGlow = Color.black;   // emissão da água (lago luminoso)
+        public bool limestone;                  // gruta de calcário: sem cristais, luz azul refletida do lago
     }
 
     static Color C(string h) => Hex(h);
@@ -147,20 +149,20 @@ public static partial class ThemedLevelBuilder
             };
             case 7: return new Theme
             {
-                key = "Gruta", title = "Gruta de Cristais",
-                atlas = new[] { "#3A5E5A", "#4E8278", "#2A3B44", "#3A4F5A", "#4A6A6A", "#4A3E3A", "#8A7058", "#5A5470", "#467068", "#3A3230", "#1E2A34", "#5CF2E6", "#B8C8D8", "#B78CF2", "#DDF6FF", "#25403E" },
-                skyZenith = C("#05070C"), skyHorizon = C("#0E1622"), cloudAmount = 0f,
-                sunCol = C("#8FB4E8"), sunElev = 70, sunYaw = 300, sunIntensity = 0.9f,
-                ambSky = C("#5868A0"), ambEq = C("#40567A"), ambGround = C("#1E2630"),
-                fogCol = C("#142838"), fogStart = 18, fogEnd = 120, caveLights = true,
-                terrain = TerrainMode.Cave, waterCol = C("#163A48"), waterAlpha = 0.85f, woodStumps = false, glowMushrooms = true,
-                particles = ParticleMode.Spores, particleA = C("#7CFFF2"), particleB = C("#C9A2FF"), particleRate = 18f,
-                accent = C("#5CF2E6"), glow = C("#5CF2E6"),
-                exposure = 0.8f, contrast = 12f, saturation = 20f, temperature = -6f, tint = 4f, bloom = 0.9f, vignette = 0.3f, vignetteCol = C("#000000"),
-                trees = new[] { "stalagmite", "crystal" }, treeWeights = new[] { 0.6f, 0.4f }, treeDensity = 0.5f, gorgeTree = "stalagmite",
-                decor = new[] { ("mushroom", 0.03f), ("crystalsmall", 0.025f), ("rock", 0.04f), ("tuft", 0.08f) },
-                topDecor = new[] { "mushroom", "crystalsmall", "rock" },
-                plateauTree = "crystal", plateauTree2 = "stalagmite",
+                key = "LagoAzul", title = "Gruta do Lago Azul",
+                atlas = new[] { "#9C8462", "#B89C74", "#4E4434", "#64563F", "#806E50", "#5E4A36", "#B8986E", "#C8AC80", "#AE9168", "#74604A", "#0E3E8A", "#7CC8FF", "#EADCC0", "#DCC294", "#F4EBDA", "#6E6248" },
+                skyZenith = C("#06080C"), skyHorizon = C("#101A26"), cloudAmount = 0f,
+                sunCol = C("#FFF0D8"), sunElev = 72, sunYaw = 300, sunIntensity = 1.0f,
+                ambSky = C("#7A7C88"), ambEq = C("#5E5A58"), ambGround = C("#2E2820"),
+                fogCol = C("#10202E"), fogStart = 20, fogEnd = 130, caveLights = true, limestone = true,
+                terrain = TerrainMode.Cave, waterCol = C("#1460E0"), waterAlpha = 0.82f, waterGlow = C("#0A3C9A"), woodStumps = false, lightShafts = true,
+                particles = ParticleMode.Dust, particleA = C("#E6F0FF"), particleB = C("#BFD6F2"), particleRate = 14f,
+                accent = C("#7CC8FF"), glow = C("#4AA0FF"),
+                exposure = 0.75f, contrast = 12f, saturation = 26f, temperature = 3f, tint = 0f, bloom = 0.8f, vignette = 0.3f, vignetteCol = C("#000000"),
+                trees = new[] { "stalagmite", "rockbig" }, treeWeights = new[] { 0.8f, 0.2f }, treeDensity = 0.5f, gorgeTree = "stalagmite",
+                decor = new[] { ("rock", 0.05f), ("rockbig", 0.01f) },
+                topDecor = new[] { "rock" },
+                plateauTree = "stalagmite", plateauTree2 = "stalagmite",
             };
             case 8: return new Theme
             {
