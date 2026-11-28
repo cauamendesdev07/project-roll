@@ -116,7 +116,11 @@ public class GameManager : MonoBehaviour
         player = CurrentLevel > 0 ? FindAnyObjectByType<CheckpointSystem>() : null;
 
         if (player != null)
+        {
             player.Respawned += OnPlayerRespawned;
+            if (player.GetComponent<BallVisuals>() == null)
+                player.gameObject.AddComponent<BallVisuals>();
+        }
 
         if (CurrentLevel == 0)
         {

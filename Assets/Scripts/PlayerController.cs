@@ -35,6 +35,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Pouso (velocidade de queda, ponto no chão): usado por efeitos visuais.
+    public event System.Action<float, Vector3> Landed;
+
     private Rigidbody rb;
     private Vector2 movementInput;
     private bool isGrounded;
@@ -227,7 +230,10 @@ public class PlayerController : MonoBehaviour
         else
         {
             if (!wasGrounded && airSteps > 6 && maxFallSpeed > 2.5f)
+            {
                 AudioManager.Play("land", Mathf.Clamp01((maxFallSpeed - 2f) / 12f) * 0.9f + 0.1f, 1f, 0.06f);
+                Landed?.Invoke(maxFallSpeed, groundPoint);
+            }
             airSteps = 0;
             maxFallSpeed = 0f;
         }
