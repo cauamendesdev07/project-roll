@@ -13,6 +13,12 @@ public class PlayerController : MonoBehaviour
     [Header("Pulo")]
     [SerializeField] private float jumpForce = 9f;
     [SerializeField] private float groundCheckDistance = 0.7f;
+    [Tooltip("Ainda dá para pular por este tempo depois de sair da beirada.")]
+    [SerializeField] private float coyoteTime = 0.1f;
+    [Tooltip("Pulo apertado até este tempo antes de pousar é feito ao pousar.")]
+    [SerializeField] private float jumpBuffer = 0.1f;
+    [Tooltip("Raio do teste de chão, em fração do raio da bola.")]
+    [SerializeField] private float groundProbeScale = 0.9f;
 
     private static int groundMask;
     private static int GroundMask
@@ -31,8 +37,13 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody rb;
     private Vector2 movementInput;
-    private bool jumpRequested;
     private bool isGrounded;
+
+    // Tolerâncias do pulo (tempos de física).
+    private float lastGroundedTime = -10f;
+    private float lastJumpPressTime = -10f;
+    private float jumpLockUntil;
+    private float ballRadius = 0.5f;
 
     // Superfície sob a bola (plataforma móvel, esteira, gelo...) e velocidades externas (vento).
     private IPlayerSurface groundSurface;
@@ -47,6 +58,9 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        var sphere = GetComponent<SphereCollider>();
+        if (sphere != null)
+            ballRadius = sphere.radius * Mathf.Max(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z);
 
         // Depois de renascer, a queda no vazio não conta como pouso.
         var checkpoint = GetComponent<CheckpointSystem>();
@@ -73,8 +87,9 @@ public class PlayerController : MonoBehaviour
         if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
             movementInput.x -= 1;
 
-        if (Keyboard.current.spaceKey.wasPressedThisFrame && isGrounded)
-            jumpRequested = true;
+        // Guarda o momento do aperto; o FixedUpdate decide se pula (buffer + coyote time).
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+            lastJumpPressTime = Time.time;
     }
 
     // Chamado por áreas como o vento: soma uma velocidade ao alvo neste passo de física.
@@ -142,28 +157,56 @@ public class PlayerController : MonoBehaviour
             newVelocity.z
         );
 
-        if (jumpRequested)
-        {
-            AudioManager.Play("jump", 0.55f, 1f, 0.05f);
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            jumpRequested = false;
-            isGrounded = false;
-        }
+        TryJump();
+    }
+
+    private void TryJump()
+    {
+        float now = Time.time;
+        bool pressed = now - lastJumpPressTime <= jumpBuffer;
+        bool canJump = now >= jumpLockUntil && now - lastGroundedTime <= coyoteTime;
+        if (!pressed || !canJump)
+            return;
+
+        // Pulando no coyote time a bola já pode estar caindo: zera a queda para o pulo ter a altura normal.
+        Vector3 v = rb.linearVelocity;
+        if (v.y < 0f)
+            rb.linearVelocity = new Vector3(v.x, 0f, v.z);
+
+        AudioManager.Play("jump", 0.55f, 1f, 0.05f);
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+
+        // Sem pulo duplo: consome o aperto e o chão, e ignora o chão logo abaixo por um instante.
+        lastJumpPressTime = -10f;
+        lastGroundedTime = -10f;
+        jumpLockUntil = now + 0.15f;
+        isGrounded = false;
     }
 
     private void CheckGround()
     {
         bool wasGrounded = isGrounded;
 
+        // Esfera um pouco menor que a bola, descendo até o mesmo alcance do antigo raio: pega a quina
+        // de vigas e blocos finos mesmo quando o centro da bola já passou da beirada.
         // Ignora triggers (vento, checkpoints, chegada) e os colisores só da câmera (CameraBlock).
-        isGrounded = Physics.Raycast(
+        float probe = ballRadius * groundProbeScale;
+        isGrounded = Physics.SphereCast(
             transform.position,
+            probe,
             Vector3.down,
             out RaycastHit hit,
-            groundCheckDistance,
+            Mathf.Max(0.01f, groundCheckDistance - probe),
             GroundMask,
             QueryTriggerInteraction.Ignore
-        );
+        ) && hit.normal.y > 0.2f;
+
+        // Reserva: o raio antigo (se a esfera começou encostada em algo, ela não acusa).
+        if (!isGrounded)
+            isGrounded = Physics.Raycast(transform.position, Vector3.down, out hit, groundCheckDistance, GroundMask, QueryTriggerInteraction.Ignore);
+
+        if (isGrounded && Time.time >= jumpLockUntil)
+            lastGroundedTime = Time.time;
 
         groundSurface = isGrounded ? hit.collider.GetComponentInParent<IPlayerSurface>() : null;
         groundPoint = isGrounded ? hit.point : Vector3.zero;
