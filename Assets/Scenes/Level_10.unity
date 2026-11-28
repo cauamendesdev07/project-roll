@@ -6899,7 +6899,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlinkingPlatform
   period: 2
-  onFraction: 0.4
+  onFraction: 0.488
   phase: 0.31
   warningTime: 0.45
   ghostMaterial: {fileID: 2100000, guid: 7713c7fa41459309b94e86b5855bcac8, type: 2}
@@ -12702,7 +12702,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlinkingPlatform
   period: 2
-  onFraction: 0.4
+  onFraction: 0.488
   phase: 0.93000007
   warningTime: 0.45
   ghostMaterial: {fileID: 2100000, guid: 7713c7fa41459309b94e86b5855bcac8, type: 2}
@@ -19611,7 +19611,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlinkingPlatform
   period: 2
-  onFraction: 0.4
+  onFraction: 0.488
   phase: 0.62
   warningTime: 0.45
   ghostMaterial: {fileID: 2100000, guid: 7713c7fa41459309b94e86b5855bcac8, type: 2}
@@ -21780,7 +21780,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlinkingPlatform
   period: 2.5
-  onFraction: 0.45
+  onFraction: 0.549
   phase: 0
   warningTime: 0.45
   ghostMaterial: {fileID: 2100000, guid: 7713c7fa41459309b94e86b5855bcac8, type: 2}
@@ -22769,7 +22769,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlinkingPlatform
   period: 2
-  onFraction: 0.4
+  onFraction: 0.488
   phase: 0
   warningTime: 0.45
   ghostMaterial: {fileID: 2100000, guid: 7713c7fa41459309b94e86b5855bcac8, type: 2}

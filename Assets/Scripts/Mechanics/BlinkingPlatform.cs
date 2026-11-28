@@ -7,7 +7,7 @@ using UnityEngine;
 public class BlinkingPlatform : MonoBehaviour
 {
     [SerializeField] private float period = 3f;
-    [Range(0.05f, 0.95f)] [SerializeField] private float onFraction = 0.5f;
+    [Range(0.05f, 0.95f)] [SerializeField] private float onFraction = 0.6f;
     [Range(0f, 1f)] [SerializeField] private float phase;
     [SerializeField] private float warningTime = 0.45f;
     [SerializeField] private Material ghostMaterial;
